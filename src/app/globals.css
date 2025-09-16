@@ -1,15 +1,18 @@
+/* ===== Tailwind v4 – Basis ===== */
 @import "tailwindcss";
 
+@import "leaflet/dist/leaflet.css";
+
+
+/* ===== Design Tokens ===== */
 :root {
+  /* Farben */
   --background: #ffffff;
   --foreground: #171717;
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Optional: Radius & Container */
+  --radius: 16px;
+  --container-padding: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,16 +22,74 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* dem Browser sagen, dass beide Farbschemen unterstützt sind */
+:root { color-scheme: light dark; }
+
+/* ===== Tailwind Theme (v4) ===== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Fonts – falls du Geist setzt, greifen die Variablen, sonst Fallback */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Radius als Token nutzen */
+  --radius-xl: var(--radius);
 }
 
-/* Tailwind v4 */
-@import "tailwindcss";
+/* ===== Base Resets & Typografie ===== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
 
-/* Unsere Keyframes */
+html { height: 100%; scroll-behavior: smooth; }
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Links – dezente Basis, Details kommen über Klassen */
+a { text-decoration: none; }
+a:where(:hover) { text-decoration: none; }
+
+/* Headings leicht enger tracken für ein knackiges Erscheinungsbild */
+h1, h2, h3 { letter-spacing: -0.02em; }
+
+/* Auswahlfarbe */
+::selection {
+  background: #f97316; /* orange-500 */
+  color: white;
+}
+
+/* Scrollbar (Chrome/Edge/Safari) – sehr dezent */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 20%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Bewegungsarme Nutzer respektieren */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Eigene Keyframes ===== */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -38,14 +99,54 @@ body {
   to   { opacity: 1; }
 }
 
-/* Eigene Utilities (Tailwind v4 Feature) */
+/* ===== Eigene Utilities (Tailwind v4 Feature) ===== */
 @utility animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out forwards;
 }
 @utility animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
 }
-html { scroll-behavior: smooth; }
-body { font-synthesis-weight: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+/* weiche Container-Gutter, vor allem auf Mobile */
+@utility container-edge {
+  padding-inline: var(--container-padding);
+}
 
+/* Card-Utility: weicher Ring + Shadow, runde Ecken */
+@utility card {
+  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-sm;
+}
+
+/* etwas kräftigerer Shadow */
+@utility card-elevated {
+  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md;
+}
+
+/* Fokus-Ring konsistent (ohne aggressive Outline-Sprünge) */
+@utility focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600;
+}
+
+/* Buttons als Utilities (nutze zusätzlich Tailwind-Klassen nach Bedarf) */
+@utility btn {
+  @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.99] focus-ring;
+}
+@utility btn-primary {
+  @apply btn bg-orange-600 text-white hover:bg-orange-700;
+}
+@utility btn-emerald {
+  @apply btn bg-emerald-600 text-white hover:bg-emerald-700;
+}
+@utility btn-ghost {
+  @apply btn bg-white/10 text-white backdrop-blur hover:bg-white/20;
+}
+
+/* Inputs konsistent: weiche Ränder + sanfter Fokus */
+@utility input-soft {
+  @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500;
+}
+
+/* Runde XL Ecken global als Klasse nutzbar */
+@utility rounded-xl2 {
+  border-radius: var(--radius-xl);
+}
