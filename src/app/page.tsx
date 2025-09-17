@@ -537,6 +537,139 @@ export default function UltraLanding() {
           </div>
         </section>
 
+        {/* ==== Marktplatz / eBay & Kleinanzeigen ==== */}
+        
+        <section
+          id="marktplatz"
+          className="bg-gradient-to-b from-white to-slate-50 scroll-mt-[var(--header-h)]"
+          aria-labelledby="marktplatz-heading"
+        >
+          <div className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-28">
+            <div className="max-w-3xl">
+              <h2
+                id="marktplatz-heading"
+                className="text-3xl md:text-4xl font-black tracking-tight"
+              >
+                Marktplatz: eBay & Kleinanzeigen
+              </h2>
+              <p className="mt-3 text-slate-600 leading-relaxed">
+                Wir verkaufen dort nützliche Gegenstände aus Aufträgen.{" "}
+                <span className="font-medium">Kein Versand</span> – bitte{" "}
+                <span className="font-medium">Abholung vor Ort nach Termin</span>.
+                <br className="hidden md:block" />
+                <span className="inline-flex items-center gap-1">
+                  <Shield className="text-orange-600" size={16} aria-hidden="true" />
+                  reset ist kein Ladengeschäft.
+                </span>
+              </p>
+
+              {/* CTAs */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <A
+                  href="https://www.ebay.de/usr/DEIN_EBAY_NAME"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-white font-semibold shadow hover:bg-slate-800 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
+                  aria-label="Unser eBay-Profil öffnen"
+                >
+                  eBay-Profil ansehen <ArrowRight size={18} aria-hidden="true" />
+                </A>
+                <A
+                  href="https://www.kleinanzeigen.de/s-bestandsliste.html?userId=DEINE_USER_ID"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
+                  aria-label="Unser Kleinanzeigen-Profil öffnen"
+                >
+                  Kleinanzeigen ansehen <ArrowRight size={18} aria-hidden="true" />
+                </A>
+                <A
+                  href={business.whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
+                  aria-label="Fragen per WhatsApp"
+                >
+                  <MessageCircle size={18} aria-hidden="true" /> Fragen per WhatsApp
+                </A>
+              </div>
+            </div>
+
+            {/* Info-Karten */}
+            <div className="mt-10 grid md:grid-cols-3 gap-4 md:gap-6">
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="text-orange-600" aria-hidden="true" />
+                  <h3 className="font-bold">Abholung nach Termin</h3>
+                </div>
+                <p className="mt-2 text-slate-600">
+                  <span className="font-medium">Abholadresse:</span> nach Vereinbarung.
+                  Termin bitte vorher abstimmen.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <Truck className="text-orange-600" aria-hidden="true" />
+                  <h3 className="font-bold">Lieferung im Umkreis</h3>
+                </div>
+                <p className="mt-2 text-slate-600">
+                  Lieferung im Umkreis von Schwerin ist möglich. Sprechen Sie uns an –
+                  wir nennen Ihnen gern die Kosten.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <Shield className="text-orange-600" aria-hidden="true" />
+                  <h3 className="font-bold">Hinweis</h3>
+                </div>
+                <p className="mt-2 text-slate-600">
+                  reset ist kein Ladengeschäft. Besichtigung und Abholung sind nur nach
+                  vorheriger Absprache möglich.
+                </p>
+              </div>
+            </div>
+
+            {/* Mini-FAQ für Marktplatz */}
+            <div className="mt-10 grid md:grid-cols-2 gap-4 md:gap-6">
+              <div className="rounded-2xl border border-slate-200/80 p-5 bg-white shadow-sm">
+                <h4 className="font-bold">Versand möglich?</h4>
+                <p className="mt-2 text-slate-600">
+                  Nein. Alle Artikel werden ausschließlich vor Ort abgeholt oder auf
+                  Wunsch im Umkreis geliefert.
+                </p>
+              </div>
+
+              {/* Nur Anruf-Icon mit Text links und Button rechts */}
+              <div className="rounded-2xl border border-slate-200/80 p-5 bg-white shadow-sm">
+                <h4 className="font-bold">Wie mache ich einen Termin?</h4>
+                <div className="mt-3 flex items-center justify-between gap-4">
+                  {/* Info-Text links */}
+                  <p className="text-slate-600 leading-relaxed">
+                    Am schnellsten telefonisch – rufen Sie uns direkt an.
+                  </p>
+
+                  {/* Button rechts */}
+                  <A
+                    href={`tel:${business.phoneLink}`}
+                    aria-label={`Jetzt anrufen: ${business.phoneHuman}`}
+                    className="shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-full bg-orange-600 text-white shadow hover:bg-orange-700 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
+                    title={`Jetzt anrufen: ${business.phoneHuman}`}
+                  >
+                    <Phone size={22} aria-hidden="true" />
+                  </A>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==== Trennung: Marktplatz → Bewertungen ==== */}
+        <div aria-hidden="true" className="mx-auto max-w-7xl px-4 md:px-8">
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+        </div>
+
         {/* Bewertungen */}
         <section className="bg-slate-50">
           <div className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-28">
