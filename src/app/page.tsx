@@ -139,7 +139,7 @@ export default function UltraLanding() {
       />
 
       {/* Top Bar */}
-      <div className="bg-slate-900 text-white text-sm">
+      <div className="hidden md:block bg-slate-900 text-white text-sm">
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
