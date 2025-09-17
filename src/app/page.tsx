@@ -35,14 +35,14 @@ export default function UltraLanding() {
   // ---- Business-Daten
   const business = {
     name: "reset. Schwerin",
-    phoneHuman: "0385 555 12345",
-    phoneLink: "+4938555512345",
+    phoneHuman: "0176 / 72190267",
+    phoneLink: "+017672190267",
     whatsappLink:
-      "https://wa.me/491721234567?text=Hallo%20reset.%20Anfrage%20aus%20Schwerin",
-    email: "info@reset-schwerin.de",
+      "https://wa.me/4917672190267?text=Hallo%20reset.%20Anfrage%20aus%20Schwerin",
+    email: "info@reset-service.de",
     address: {
-      street: "Musterstraße 1",
-      zip: "19053",
+      street: "Wuppertaler Str. 34",
+      zip: "19063",
       city: "Schwerin",
     },
   } as const;
@@ -97,7 +97,7 @@ export default function UltraLanding() {
   // ---- Nav-Links
   const NavLinks = () => (
     <>
-      <A href="#leistungen" variant="link">
+      <A href="/leistungen" variant="link">
         Leistungen
       </A>
       <A href="#vorteile" variant="link">
@@ -213,7 +213,7 @@ export default function UltraLanding() {
           className="md:hidden border-t border-slate-200 bg-white"
         >
           <div className="mx-auto max-w-7xl px-4 py-3 grid gap-3 text-base">
-            <A href="#leistungen" onClick={() => setMobileNavOpen(false)}>
+            <A href="/leistungen" onClick={() => setMobileNavOpen(false)}>
               Leistungen
             </A>
             <A href="#vorteile" onClick={() => setMobileNavOpen(false)}>
@@ -343,36 +343,20 @@ export default function UltraLanding() {
             <p className="mt-2 text-slate-600 leading-relaxed">
               Alles aus einer Hand – für Ihren Neuanfang in Schwerin.
             </p>
+
             <div className="mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
               {[
-                {
-                  title: "Haushaltsauflösungen",
-                  desc: "Schnell, sauber & mit Wertanrechnung.",
-                },
-                {
-                  title: "Entrümpelungen",
-                  desc: "Keller, Dachboden, Garage – wir schaffen Platz.",
-                },
-                {
-                  title: "Umzüge",
-                  desc: "Stressfrei mit Fahrer & passendem Fahrzeug.",
-                },
-                {
-                  title: "Fahrzeugvermietung",
-                  desc: "Transporter mit Fahrer – flexibel buchbar.",
-                },
-                {
-                  title: "Gebäudereinigung",
-                  desc: "Grund- & Unterhaltsreinigung für Haus & Büro.",
-                },
-                {
-                  title: "Hausmeisterservice",
-                  desc: "Reparaturen, Pflege & Winterdienst.",
-                },
+                { title: "Haushaltsauflösungen", desc: "Schnell, sauber & mit Wertanrechnung." },
+                { title: "Entrümpelungen",       desc: "Keller, Dachboden, Garage – wir schaffen Platz." },
+                { title: "Umzüge",               desc: "Stressfrei mit Fahrer & passendem Fahrzeug." },
+                { title: "Fahrzeugvermietung",   desc: "Transporter mit Fahrer – flexibel buchbar." },
+                { title: "Gebäudereinigung",     desc: "Grund- & Unterhaltsreinigung für Haus & Büro." },
+                { title: "Hausmeisterservice",   desc: "Reparaturen, Pflege & Winterdienst." },
               ].map((card, i) => (
                 <A
                   key={i}
-                  href={`/leistungen#${encodeURIComponent(card.title)}`}
+                  href="/leistungen"
+                  aria-label={`${card.title} – Details ansehen`}
                   className="group rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-transform"
                 >
                   <div className="p-5 md:p-7">
@@ -391,13 +375,13 @@ export default function UltraLanding() {
                 </A>
               ))}
             </div>
+
             <div className="mt-8">
               <A
                 href="/leistungen"
                 className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-6 py-3 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
               >
-                Alle Leistungen ansehen{" "}
-                <ArrowRight size={18} aria-hidden="true" />
+                Alle Leistungen ansehen <ArrowRight size={18} aria-hidden="true" />
               </A>
             </div>
           </div>
@@ -622,7 +606,7 @@ export default function UltraLanding() {
 
         {/* ==== Kontakt & Angebot (neutral, weich) ==== */}
         <section
-          id="angebot"
+          id="kontakt"
           className="relative isolate scroll-mt-[var(--header-h)] bg-white"
         >
           <div className="mx-auto max-w-7xl px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
@@ -878,17 +862,17 @@ export default function UltraLanding() {
             <h4 className="font-bold">Rechtliches</h4>
             <ul className="mt-3 space-y-2 text-slate-600">
               <li>
-                <A href="#" variant="link">
+                <A href="/rechtliches" variant="link">
                   Impressum
                 </A>
               </li>
               <li>
-                <A href="#" variant="link">
+                <A href="/rechtliches" variant="link">
                   Datenschutzerklärung
                 </A>
               </li>
               <li>
-                <A href="#" variant="link">
+                <A href="/rechtliches" variant="link">
                   AGB
                 </A>
               </li>
