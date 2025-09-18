@@ -114,9 +114,9 @@ function NavLinks() {
       <Link href="/leistungen" className="hover:text-orange-600">Leistungen</Link>
       <Link href="#preise" className="hover:text-orange-600">Preise</Link>
       <Link href="#faq" className="hover:text-orange-600">FAQ</Link>
-      <Link href="#angebot" className="hover:text-orange-600">Kontakt</Link>
+      <Link href="/#kontakt" className="hover:text-orange-600">Kontakt</Link>
       <A
-        href="#angebot"
+        href="/#kontakt"
         className="ml-1 inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700 transition"
       >
         Angebot anfordern <ArrowRight size={18} aria-hidden />
