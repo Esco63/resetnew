@@ -112,6 +112,7 @@ function NavLinks() {
   return (
     <>
       <Link href="/leistungen" className="hover:text-orange-600">Leistungen</Link>
+      <Link href="/#vorteile" className="hover:text-orange-600">Vorteile</Link>
       <Link href="#preise" className="hover:text-orange-600">Preise</Link>
       <Link href="#faq" className="hover:text-orange-600">FAQ</Link>
       <Link href="/#kontakt" className="hover:text-orange-600">Kontakt</Link>
@@ -151,6 +152,7 @@ function Header() {
       <div id="mobile-menu" hidden={!mobileNavOpen} className="md:hidden border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-3 grid gap-3 text-base">
           <Link href="/leistungen" onClick={() => setMobileNavOpen(false)}>Leistungen</Link>
+          <Link href="/#vorteile" onClick={() => setMobileNavOpen(false)}>Vorteile</Link>
           <Link href="#preise" onClick={() => setMobileNavOpen(false)}>Preise</Link>
           <Link href="#faq" onClick={() => setMobileNavOpen(false)}>FAQ</Link>
           <Link href="#angebot" onClick={() => setMobileNavOpen(false)}>Kontakt</Link>
