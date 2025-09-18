@@ -24,21 +24,21 @@ export default function RechtlichesPage() {
   // Business-Daten – gern anpassen/zentralisieren
   const business = {
     name: "reset. Schwerin",
-    phoneHuman: "0385 555 12345",
-    phoneLink: "+4938555512345",
+    phoneHuman: "0176 / 72190267",
+    phoneLink: "+4917672190267",
     whatsappLink:
-      "https://wa.me/491721234567?text=Hallo%20reset.%20Anfrage%20aus%20Schwerin",
-    email: "info@reset-schwerin.de",
+      "https://wa.me/4917672190267?text=Hallo%20reset.%20Anfrage%20aus%20Schwerin",
+    email: "info@reset-service.de",
     address: {
-      street: "Musterstraße 1",
-      zip: "19053",
+      street: "Wuppertaler Straße 34",
+      zip: "19063",
       city: "Schwerin",
     },
-    owner: "Max Mustermann",
-    vatId: "DE123456789", // falls vorhanden
+    owner: "Andre Michel",
+    vatId: "???", // falls vorhanden
     register: {
       court: "Amtsgericht Schwerin",
-      number: "HRB 12345", // falls vorhanden (bei GmbH/UG etc.)
+      number: "???", // falls vorhanden (bei GmbH/UG etc.)
     },
     lastUpdated: "01.09.2025",
   } as const;
@@ -74,7 +74,7 @@ export default function RechtlichesPage() {
             <Link href="/#vorteile" className="hover:text-orange-600">
               Vorteile
             </Link>
-            <Link href="/#preise" className="hover:text-orange-600">
+            <Link href="/preise" className="hover:text-orange-600">
               Preise
             </Link>
             <Link href="/#faq" className="hover:text-orange-600">
@@ -117,7 +117,7 @@ export default function RechtlichesPage() {
               <Link href="/#vorteile" onClick={() => setMobileNavOpen(false)}>
                 Vorteile
               </Link>
-              <Link href="/#preise" onClick={() => setMobileNavOpen(false)}>
+              <Link href="/preise" onClick={() => setMobileNavOpen(false)}>
                 Preise
               </Link>
               <Link href="/#faq" onClick={() => setMobileNavOpen(false)}>

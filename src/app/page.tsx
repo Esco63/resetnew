@@ -36,7 +36,7 @@ export default function UltraLanding() {
   const business = {
     name: "reset. Schwerin",
     phoneHuman: "0176 / 72190267",
-    phoneLink: "+017672190267",
+    phoneLink: "+4917672190267",
     whatsappLink:
       "https://wa.me/4917672190267?text=Hallo%20reset.%20Anfrage%20aus%20Schwerin",
     email: "info@reset-service.de",
@@ -103,7 +103,7 @@ export default function UltraLanding() {
       <A href="#vorteile" variant="link">
         Vorteile
       </A>
-      <A href="#preise" variant="link">
+      <A href="/preise" variant="link">
         Preise
       </A>
       <A href="#faq" variant="link">
@@ -219,7 +219,7 @@ export default function UltraLanding() {
             <A href="#vorteile" onClick={() => setMobileNavOpen(false)}>
               Vorteile
             </A>
-            <A href="#preise" onClick={() => setMobileNavOpen(false)}>
+            <A href="/preise" onClick={() => setMobileNavOpen(false)}>
               Preise
             </A>
             <A href="#faq" onClick={() => setMobileNavOpen(false)}>
