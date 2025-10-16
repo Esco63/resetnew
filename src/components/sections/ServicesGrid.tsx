@@ -31,7 +31,7 @@ export default function ServicesGrid() {
               className="group"
             >
               <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.99]">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
                   {card.title}
                   <ArrowRight
                     className="opacity-0 group-hover:opacity-100 transition translate-x-0 group-hover:translate-x-0.5 text-orange-600"
