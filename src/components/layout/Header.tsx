@@ -1,7 +1,7 @@
-// src/components/layout/Header.tsx
 "use client";
 
 import { useState } from "react";
+import NextLink from "next/link";
 import Container from "@/components/ui/Container";
 import Link from "@/components/ui/Link";
 import { Button } from "@/components/ui/Button";
@@ -31,20 +31,17 @@ export default function Header() {
 
       <Container className="py-3.5 flex items-center justify-between">
         {/* Logo */}
-        <a
+        <NextLink
           href="/"
           className="text-2xl font-black tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600"
           aria-label="Startseite"
         >
           <span className="text-slate-900">re</span>
           <span className="text-orange-600">set.</span>
-        </a>
+        </NextLink>
 
         {/* Desktop Nav */}
-        <nav
-          aria-label="Hauptnavigation"
-          className="hidden md:flex items-center gap-6 font-medium"
-        >
+        <nav aria-label="Hauptnavigation" className="hidden md:flex items-center gap-6 font-medium">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} variant="link">
               {n.label}
@@ -72,11 +69,7 @@ export default function Header() {
       </Container>
 
       {/* Mobile menu panel */}
-      <div
-        id="mobile-menu"
-        hidden={!open}
-        className="md:hidden border-t border-slate-200 bg-white"
-      >
+      <div id="mobile-menu" hidden={!open} className="md:hidden border-t border-slate-200 bg-white">
         <Container className="py-3 grid gap-3 text-base">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} onClick={() => setOpen(false)}>
@@ -88,7 +81,6 @@ export default function Header() {
             asChild={false}
             className="w-full"
             onClick={() => {
-              // simple navigate
               window.location.hash = "angebot";
               setOpen(false);
             }}

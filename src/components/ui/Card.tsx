@@ -1,27 +1,23 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type CardProps<C extends React.ElementType = "div"> = {
-  as?: C;
+export type CardProps = React.HTMLAttributes<HTMLDivElement> & {
   hover?: boolean;
   padded?: boolean;
   ring?: boolean;
-  className?: string;
-} & Omit<React.ComponentPropsWithoutRef<C>, "as" | "className">;
+};
 
-export function Card<C extends React.ElementType = "div">({
-  as,
+export function Card({
   hover = true,
   padded = true,
   ring = true,
   className,
-  ...props
-}: CardProps<C>) {
-  const Tag = (as || "div") as React.ElementType;
-
+  children,
+  ...rest
+}: CardProps) {
   return (
-    <Tag
-      {...(props as any)}
+    <div
+      {...rest}
       className={cn(
         "rounded-2xl bg-white shadow-sm",
         ring && "border border-slate-200/80",
@@ -29,39 +25,30 @@ export function Card<C extends React.ElementType = "div">({
         padded && "p-6",
         className
       )}
-    />
+    >
+      {children}
+    </div>
   );
 }
 
-export function CardHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} className={cn("mb-3", className)} />;
+export function CardHeader(props: React.HTMLAttributes<HTMLDivElement>) {
+  const { className, ...rest } = props;
+  return <div {...rest} className={cn("mb-3", className)} />;
 }
 
-export function CardTitle({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle(props: React.HTMLAttributes<HTMLHeadingElement>) {
+  const { className, ...rest } = props;
   return (
-    <h3
-      {...props}
-      className={cn("text-lg md:text-xl font-bold tracking-tight", className)}
-    />
+    <h3 {...rest} className={cn("text-lg md:text-xl font-bold tracking-tight", className)} />
   );
 }
 
-export function CardContent({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} className={cn("text-slate-700", className)} />;
+export function CardContent(props: React.HTMLAttributes<HTMLDivElement>) {
+  const { className, ...rest } = props;
+  return <div {...rest} className={cn("text-slate-700", className)} />;
 }
 
-export function CardActions({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} className={cn("mt-4", className)} />;
+export function CardActions(props: React.HTMLAttributes<HTMLDivElement>) {
+  const { className, ...rest } = props;
+  return <div {...rest} className={cn("mt-4", className)} />;
 }

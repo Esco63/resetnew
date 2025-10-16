@@ -1,26 +1,22 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type SectionElement = keyof JSX.IntrinsicElements;
-
-type SectionProps<C extends React.ElementType = "section"> = {
-  as?: C;
+export type SectionProps = React.HTMLAttributes<HTMLElement> & {
   padded?: boolean;
-  className?: string;
-} & Omit<React.ComponentPropsWithoutRef<C>, "as" | "className">;
+};
 
-export default function Section<C extends React.ElementType = "section">({
-  as,
+export default function Section({
   padded = true,
   className,
-  ...props
-}: SectionProps<C>) {
-  const Tag = (as || "section") as React.ElementType;
-
+  children,
+  ...rest
+}: SectionProps) {
   return (
-    <Tag
-      {...(props as any)}
+    <section
+      {...rest}
       className={cn(padded && "py-16 md:py-24", className)}
-    />
+    >
+      {children}
+    </section>
   );
 }
