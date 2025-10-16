@@ -432,25 +432,6 @@ function emailTemplate(opts: {
     : "";
 
   const signatureBlock = signature
-    ? `<tr><td style="padding:16px 24px 8px 24px;">
-         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-           <tr>
-             
-             <td style="vertical-align:top;">
-               <p style="margin:0;font-weight:700;color:${textColor};font-size:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">${brand.name}</p>
-               <p style="margin:2px 0 0 0;color:${muted};font-size:12px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">Auflösen • Räumen • Neuanfangen</p>
-               <p style="margin:8px 0 0 0;color:${textColor};font-size:13px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                 ${brand.address}<br/>
-                 Tel. ${brand.phoneHuman} • <a href="mailto:${brand.email}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.email}</a>
-               </p>
-               <p style="margin:6px 0 0 0;">
-                 <a href="${brand.site}" style="color:${brand.brandPrimary};font-size:12px;text-decoration:underline;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">${brand.site.replace(/^https?:\/\//, "")}</a>
-               </p>
-             </td>
-           </tr>
-         </table>
-       </td></tr>`
-    : "";
 
   return `
   <!doctype html>
