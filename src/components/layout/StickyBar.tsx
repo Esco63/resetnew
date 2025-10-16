@@ -10,12 +10,14 @@ export default function StickyBar() {
 
   useEffect(() => {
     let lastY = window.scrollY;
+
     const onScroll = () => {
       const y = window.scrollY;
       if (y > lastY + 8) setShow(false);
       else if (y + 8 < lastY) setShow(true);
       lastY = y;
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
 
     const setOffset = () => {
@@ -32,15 +34,17 @@ export default function StickyBar() {
     };
     setOffset();
 
-    const vv = (window as any).visualViewport as VisualViewport | undefined;
+    // 🩵 Typensichere VisualViewport-Erkennung
+    const vv: VisualViewport | undefined = window.visualViewport ?? undefined;
+
     const onVV = () => setOffset();
-    vv?.addEventListener?.("resize", onVV);
-    vv?.addEventListener?.("scroll", onVV);
+    vv?.addEventListener("resize", onVV);
+    vv?.addEventListener("scroll", onVV);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      vv?.removeEventListener?.("resize", onVV);
-      vv?.removeEventListener?.("scroll", onVV);
+      vv?.removeEventListener("resize", onVV);
+      vv?.removeEventListener("scroll", onVV);
     };
   }, []);
 
@@ -61,6 +65,7 @@ export default function StickyBar() {
           >
             <Phone size={18} /> Anruf
           </Link>
+
           <Link
             href={business.whatsappLink}
             target="_blank"
@@ -69,6 +74,7 @@ export default function StickyBar() {
           >
             <MessageCircle size={18} /> WhatsApp
           </Link>
+
           <Link
             href="#angebot"
             className="flex-[1.4] inline-flex items-center justify-center gap-2 rounded-full bg-orange-600 px-4 py-2 font-semibold text-white shadow hover:bg-orange-700"
