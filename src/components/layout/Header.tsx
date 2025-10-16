@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import Container from "@/components/ui/Container";
 import Link from "@/components/ui/Link";
@@ -18,9 +18,26 @@ const NAV: NavItem[] = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur border-b border-slate-200/70">
+    <header
+      className={[
+        "fixed inset-x-0 top-0 z-50 transition-all",
+        // Default: oben SOLIDE (nicht transparent)
+        "border-b border-slate-200 bg-white shadow-sm",
+        // Nach Scroll: leicht transparent + Blur
+        scrolled ? "bg-white/75 backdrop-blur-md shadow" : "",
+      ].join(" ")}
+      data-scrolled={scrolled ? "true" : "false"}
+    >
       {/* Skip link */}
       <a
         href="#main"
@@ -41,7 +58,10 @@ export default function Header() {
         </NextLink>
 
         {/* Desktop Nav */}
-        <nav aria-label="Hauptnavigation" className="hidden md:flex items-center gap-6 font-medium">
+        <nav
+          aria-label="Hauptnavigation"
+          className="hidden md:flex items-center gap-6 font-medium"
+        >
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} variant="link">
               {n.label}
@@ -69,7 +89,11 @@ export default function Header() {
       </Container>
 
       {/* Mobile menu panel */}
-      <div id="mobile-menu" hidden={!open} className="md:hidden border-t border-slate-200 bg-white">
+      <div
+        id="mobile-menu"
+        hidden={!open}
+        className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur"
+      >
         <Container className="py-3 grid gap-3 text-base">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} onClick={() => setOpen(false)}>

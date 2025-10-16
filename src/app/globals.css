@@ -1,44 +1,55 @@
 /* ===== Tailwind v4 – Basis ===== */
 @import "tailwindcss";
-
 @import "leaflet/dist/leaflet.css";
 
-
-/* ===== Design Tokens ===== */
+/* ================================
+   Design Tokens (CSS Custom Props)
+   ================================ */
 :root {
   /* Farben */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a; /* slate-900 */
+  --muted: #64748b;      /* slate-500/600 */
+  --brand: #ea580c;      /* orange-600 */
+  --brand-700: #c2410c;  /* orange-700 */
 
-  /* Optional: Radius & Container */
-  --radius: 16px;
-  --container-padding: 1rem;
+  /* Layout */
+  --radius: 16px;             /* XL Rundung */
+  --container-padding: 1rem;  /* Gutter auf Mobile */
+
+  /* Header-Höhen (für fixed header offsets) */
+  --header-h-mobile: 76px;
+  --header-h-desktop: 84px;
 }
 
+/* Dark-Mode Basen (falls später genutzt) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #e5e7eb; /* slate-200 */
+    --muted: #94a3b8;      /* slate-400 */
   }
 }
 
-/* dem Browser sagen, dass beide Farbschemen unterstützt sind */
+/* beides erlauben – System darf umschalten */
 :root { color-scheme: light dark; }
 
-/* ===== Tailwind Theme (v4) ===== */
+/* ===================
+   Tailwind Theme Map
+   =================== */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Fonts – falls du Geist setzt, greifen die Variablen, sonst Fallback */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  /* Radius als Token nutzen */
   --radius-xl: var(--radius);
 }
 
-/* ===== Base Resets & Typografie ===== */
+/* ======================
+   Base Resets & Typo
+   ====================== */
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -57,20 +68,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Links – dezente Basis, Details kommen über Klassen */
-a { text-decoration: none; }
-a:where(:hover) { text-decoration: none; }
+/* Links – Basis (Details über Komponenten) */
+a { text-decoration: none; color: inherit; }
+a:hover { text-decoration: none; }
 
-/* Headings leicht enger tracken für ein knackiges Erscheinungsbild */
+/* Headings – knackiger Look */
 h1, h2, h3 { letter-spacing: -0.02em; }
 
 /* Auswahlfarbe */
-::selection {
-  background: #f97316; /* orange-500 */
-  color: white;
-}
+::selection { background: #f97316; color: #fff; } /* orange-500 */
 
-/* Scrollbar (Chrome/Edge/Safari) – sehr dezent */
+/* Scrollbar (WebKit) – dezent */
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
@@ -89,64 +97,72 @@ h1, h2, h3 { letter-spacing: -0.02em; }
   }
 }
 
-/* ===== Eigene Keyframes ===== */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* ==================================
+   Keyframes & Animations (Utilities)
+   ================================== */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@utility animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+@utility animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+
+/* ==========================
+   Global Utilities (Tailwind)
+   ========================== */
+
+/* weiche Container-Gutter */
+@utility container-edge { padding-inline: var(--container-padding); }
+
+/* Cards */
+@utility card { @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-sm; }
+@utility card-elevated { @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md; }
+
+/* Fokus-Ring konsistent */
+@utility focus-ring { @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--brand]; }
+
+/* Buttons */
+@utility btn { @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.99] focus-ring; }
+@utility btn-primary { @apply btn bg-[--brand] text-white hover:bg-[--brand-700] shadow; }
+@utility btn-ghost { @apply btn bg-white/10 text-white backdrop-blur hover:bg-white/20; }
+@utility btn-emerald { @apply btn bg-emerald-600 text-white hover:bg-emerald-700; }
+
+/* Inputs */
+@utility input-soft { @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-[--brand]; }
+
+/* Extra runde Ecken als Klasse */
+@utility rounded-xl2 { border-radius: var(--radius-xl); }
+
+/* Text-Schatten für dunkle Hintergründe (Hero) */
+@utility text-shadow { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); }
+@utility text-shadow-sm { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35); }
+
+/* ===============================
+   Layout-Offsets & Navbar Helper
+   =============================== */
+
+/* Haupt-Content nicht unter die fixed Navbar schieben */
+main#main { padding-top: var(--header-h-mobile); }
+@media (min-width: 768px) { main#main { padding-top: var(--header-h-desktop); } }
+
+/* Optionaler Helper, wenn du ein element .has-fixed-header brauchst */
+.has-fixed-header { padding-top: var(--header-h-mobile); }
+@media (min-width: 768px) { .has-fixed-header { padding-top: var(--header-h-desktop); } }
+
+/* ======================================
+   Typografie für Mobile – bessere Lesbarkeit
+   ====================================== */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; line-height: 1.15; }
+  h2 { font-size: 1.5rem; line-height: 1.2; }
+  h3 { font-size: 1.25rem; line-height: 1.25; }
+  p  { font-size: 1rem; line-height: 1.65; }
 }
 
-/* ===== Eigene Utilities (Tailwind v4 Feature) ===== */
-@utility animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-@utility animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
-}
-
-/* weiche Container-Gutter, vor allem auf Mobile */
-@utility container-edge {
-  padding-inline: var(--container-padding);
-}
-
-/* Card-Utility: weicher Ring + Shadow, runde Ecken */
-@utility card {
-  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-sm;
-}
-
-/* etwas kräftigerer Shadow */
-@utility card-elevated {
-  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md;
-}
-
-/* Fokus-Ring konsistent (ohne aggressive Outline-Sprünge) */
-@utility focus-ring {
-  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600;
-}
-
-/* Buttons als Utilities (nutze zusätzlich Tailwind-Klassen nach Bedarf) */
-@utility btn {
-  @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.99] focus-ring;
-}
-@utility btn-primary {
-  @apply btn bg-orange-600 text-white hover:bg-orange-700;
-}
-@utility btn-emerald {
-  @apply btn bg-emerald-600 text-white hover:bg-emerald-700;
-}
-@utility btn-ghost {
-  @apply btn bg-white/10 text-white backdrop-blur hover:bg-white/20;
-}
-
-/* Inputs konsistent: weiche Ränder + sanfter Fokus */
-@utility input-soft {
-  @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500;
-}
-
-/* Runde XL Ecken global als Klasse nutzbar */
-@utility rounded-xl2 {
-  border-radius: var(--radius-xl);
-}
+/* ==================================================
+   Hero-spezifische Basen (falls du .hero nutzt)
+   ================================================== */
+/* Du kannst deinem Hero-Container zusätzlich die Klasse .hero geben */
+.hero h1,
+.hero h2,
+.hero p { color: #fff; }
+.hero h1, .hero p { @apply text-shadow-sm; }
