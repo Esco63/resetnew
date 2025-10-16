@@ -12,26 +12,23 @@ export default function Hero() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <Section className="relative isolate overflow-hidden p-0">
+    <Section className="hero relative isolate overflow-hidden p-0">
       {/* Hintergrundbild */}
       <div
         className="absolute inset-0 -z-10 bg-[url('/hero.png')] bg-cover bg-center"
         aria-hidden="true"
       />
-      {/* Overlay (mobil etwas stärker) */}
-      <div
-        className="absolute inset-0 -z-10 bg-black/60 md:bg-black/50"
-        aria-hidden="true"
-      />
+      {/* Overlay (mobil stärker) */}
+      <div className="absolute inset-0 -z-10 bg-black/60 md:bg-black/50" aria-hidden="true" />
 
-      {/* Top-Padding damit nichts unter der fixed Navbar liegt */}
-      <Container className="pt-[76px] md:pt-[84px] pb-16 md:pb-24 text-white">
+      {/* Abstand unter fixed Header */}
+      <Container className="pt-[var(--header-h-mobile)] md:pt-[var(--header-h-desktop)] pb-16 md:pb-24 text-white">
         <Heading
           level={1}
           className={[
             "max-w-4xl font-extrabold leading-tight",
             "text-4xl sm:text-5xl md:text-6xl",
-            "text-shadow", // eigener Utility (siehe globals.css)
+            "text-shadow",
             mounted ? "motion-safe:animate-fade-in-up" : "opacity-0",
           ].join(" ")}
         >
@@ -42,7 +39,7 @@ export default function Hero() {
         <p
           className={[
             "mt-5 max-w-2xl text-base sm:text-lg md:text-xl leading-relaxed",
-            "text-white/95 text-shadow-sm",
+            "text-white text-shadow-sm",
             mounted
               ? "motion-safe:animate-fade-in motion-safe:[animation-delay:120ms]"
               : "opacity-0",

@@ -25,13 +25,13 @@ export default function Heading({
   children,
   ...props
 }: HProps) {
-  const tagByLevel: Record<HeadingLevel, "h1" | "h2" | "h3" | "h4"> = {
+  const TagMap: Record<HeadingLevel, "h1" | "h2" | "h3" | "h4"> = {
     1: "h1",
     2: "h2",
     3: "h3",
     4: "h4",
   };
-  const tag = tagByLevel[level];
+  const Tag = TagMap[level];
 
   return (
     <div className={cn(align === "center" && "text-center")}>
@@ -41,10 +41,15 @@ export default function Heading({
         </div>
       )}
       {React.createElement(
-        tag,
+        Tag,
         {
           ...(props as React.HTMLAttributes<HTMLHeadingElement>),
-          className: cn("font-black tracking-tight", SIZE_CLASSES[level], className),
+          className: cn(
+            "font-black tracking-tight",
+            "text-slate-900 dark:text-white", // volle Farbe als Default
+            SIZE_CLASSES[level],
+            className
+          ),
         },
         children
       )}

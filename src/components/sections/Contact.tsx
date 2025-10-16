@@ -1,3 +1,4 @@
+// src/components/sections/Contact.tsx
 "use client";
 
 import { useState } from "react";
@@ -38,7 +39,6 @@ export default function Contact() {
     const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
 
-    // sanfte Client-Validierung: E-Mail ODER Telefon
     const email = String(payload.email || "").trim();
     const phone = String(payload.phone || "").trim();
     if (!email && !phone) {
@@ -56,7 +56,6 @@ export default function Contact() {
 
       const json: unknown = await res.json();
 
-      // prüfen, ob Response die übliche Struktur hat
       if (
         typeof json === "object" &&
         json !== null &&
@@ -70,12 +69,11 @@ export default function Contact() {
         return;
       }
 
-      // Feldfehler schön anzeigen (422 vom Server)
       if (
         typeof json === "object" &&
         json !== null &&
         "details" in json &&
-        (json as any).details?.fieldErrors // eslint-disable-line @typescript-eslint/no-explicit-any
+        (json as any).details?.fieldErrors
       ) {
         const fe = (json as { details: { fieldErrors: FieldErrors } }).details.fieldErrors;
         setFieldErrors(fe);
@@ -83,7 +81,6 @@ export default function Contact() {
         return;
       }
 
-      // generischer Fehler
       setStatus("error");
       const message =
         typeof json === "object" && json !== null && "error" in json
@@ -106,11 +103,13 @@ export default function Contact() {
   const fe = (key: string) => fieldErrors?.[key]?.[0];
 
   return (
-    <Section id="kontakt" className="relative isolate scroll-mt-[64px] bg-white">
+    <Section id="kontakt" className="relative isolate bg-white scroll-mt-[var(--header-h-mobile)] md:scroll-mt-[var(--header-h-desktop)]">
       <Container className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
         {/* Formular */}
         <div>
-          <Heading level={2}>Kostenloses Angebot in 2 Minuten</Heading>
+          <Heading level={2} className="text-slate-900">
+            Kostenloses Angebot in 2 Minuten
+          </Heading>
           <p className="mt-2 text-slate-600 leading-relaxed">
             Schicken Sie uns Eckdaten & optional Fotos/Video per WhatsApp. Wir melden uns umgehend.
           </p>
@@ -200,7 +199,6 @@ export default function Contact() {
               </Link>
             </div>
 
-            {/* Statusmeldungen – optisch sauber, ohne zerrissene Wörter */}
             <div aria-live="polite" className="min-h-[1.5rem]">
               {status === "success" && (
                 <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 p-3">
@@ -243,7 +241,7 @@ export default function Contact() {
 
         {/* Kontakt + Karte */}
         <div className="rounded-2xl ring-1 ring-slate-200/60 bg-white p-6 md:p-7 shadow-md">
-          <h3 className="text-2xl font-bold tracking-tight">Kontakt</h3>
+          <h3 className="text-2xl font-bold tracking-tight text-slate-900">Kontakt</h3>
 
           <div className="mt-4 grid gap-3 text-slate-700">
             <p className="flex items-center gap-2">

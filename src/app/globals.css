@@ -3,26 +3,22 @@
 @import "leaflet/dist/leaflet.css";
 
 /* ================================
-   Design Tokens (CSS Custom Props)
+   Design Tokens
    ================================ */
 :root {
-  /* Farben */
   --background: #ffffff;
   --foreground: #0f172a; /* slate-900 */
   --muted: #64748b;      /* slate-500/600 */
   --brand: #ea580c;      /* orange-600 */
   --brand-700: #c2410c;  /* orange-700 */
 
-  /* Layout */
-  --radius: 16px;             /* XL Rundung */
-  --container-padding: 1rem;  /* Gutter auf Mobile */
+  --radius: 16px;
+  --container-padding: 1rem;
 
-  /* Header-Höhen (für fixed header offsets) */
   --header-h-mobile: 76px;
   --header-h-desktop: 84px;
 }
 
-/* Dark-Mode Basen (falls später genutzt) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -31,7 +27,6 @@
   }
 }
 
-/* beides erlauben – System darf umschalten */
 :root { color-scheme: light dark; }
 
 /* ===================
@@ -48,7 +43,7 @@
 }
 
 /* ======================
-   Base Resets & Typo
+   Base & Typo
    ====================== */
 *,
 *::before,
@@ -68,17 +63,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Links – Basis (Details über Komponenten) */
-a { text-decoration: none; color: inherit; }
+/* Links – nicht global umfärben (sonst überschreibt es text-white)! */
+a { text-decoration: none; }
 a:hover { text-decoration: none; }
+/* Nur in Fließtexten ggf. auf Textfarbe setzen */
+.prose a { color: inherit; }
 
-/* Headings – knackiger Look */
 h1, h2, h3 { letter-spacing: -0.02em; }
 
-/* Auswahlfarbe */
 ::selection { background: #f97316; color: #fff; } /* orange-500 */
 
-/* Scrollbar (WebKit) – dezent */
+/* Scrollbar (WebKit) dezent */
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
@@ -88,7 +83,7 @@ h1, h2, h3 { letter-spacing: -0.02em; }
   background-clip: content-box;
 }
 
-/* Bewegungsarme Nutzer respektieren */
+/* Bewegungsarme Nutzer */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation: none !important;
@@ -97,20 +92,15 @@ h1, h2, h3 { letter-spacing: -0.02em; }
   }
 }
 
-/* ==================================
-   Keyframes & Animations (Utilities)
-   ================================== */
+/* ==========================
+   Keyframes & Utilities
+   ========================== */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 @utility animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
 @utility animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
 
-/* ==========================
-   Global Utilities (Tailwind)
-   ========================== */
-
-/* weiche Container-Gutter */
 @utility container-edge { padding-inline: var(--container-padding); }
 
 /* Cards */
@@ -129,7 +119,7 @@ h1, h2, h3 { letter-spacing: -0.02em; }
 /* Inputs */
 @utility input-soft { @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-[--brand]; }
 
-/* Extra runde Ecken als Klasse */
+/* Extra runde Ecken */
 @utility rounded-xl2 { border-radius: var(--radius-xl); }
 
 /* Text-Schatten für dunkle Hintergründe (Hero) */
@@ -137,32 +127,21 @@ h1, h2, h3 { letter-spacing: -0.02em; }
 @utility text-shadow-sm { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35); }
 
 /* ===============================
-   Layout-Offsets & Navbar Helper
+   Layout-Offsets & Hero-Helper
    =============================== */
-
-/* Haupt-Content nicht unter die fixed Navbar schieben */
 main#main { padding-top: var(--header-h-mobile); }
 @media (min-width: 768px) { main#main { padding-top: var(--header-h-desktop); } }
 
-/* Optionaler Helper, wenn du ein element .has-fixed-header brauchst */
-.has-fixed-header { padding-top: var(--header-h-mobile); }
-@media (min-width: 768px) { .has-fixed-header { padding-top: var(--header-h-desktop); } }
+/* Hero-Helper für weiße Typo */
+.hero h1, .hero h2, .hero p { color: #fff; }
+.hero h1, .hero p { @apply text-shadow-sm; }
 
-/* ======================================
-   Typografie für Mobile – bessere Lesbarkeit
-   ====================================== */
+/* ===============================
+   Mobile Typografie
+   =============================== */
 @media (max-width: 768px) {
   h1 { font-size: 2rem; line-height: 1.15; }
   h2 { font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.25; }
   p  { font-size: 1rem; line-height: 1.65; }
 }
-
-/* ==================================================
-   Hero-spezifische Basen (falls du .hero nutzt)
-   ================================================== */
-/* Du kannst deinem Hero-Container zusätzlich die Klasse .hero geben */
-.hero h1,
-.hero h2,
-.hero p { color: #fff; }
-.hero h1, .hero p { @apply text-shadow-sm; }

@@ -1,4 +1,3 @@
-// src/components/ui/Link.tsx
 "use client";
 
 import * as React from "react";
@@ -13,7 +12,8 @@ export default function Link({
   className,
   ...props
 }: LinkProps) {
-  const base = "focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 transition";
+  const base =
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 transition";
   const variants = {
     unstyled: "",
     link: "hover:text-orange-600 underline-offset-4 hover:underline",

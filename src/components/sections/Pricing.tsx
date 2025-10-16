@@ -20,31 +20,14 @@ type Plan = {
 };
 
 const PLANS_DEFAULT: Plan[] = [
-  {
-    name: "Schnell & Klein",
-    priceFrom: 199,
-    points: ["Kellerabteil", "1–2m³ Entsorgung", "Besenrein"],
-  },
-  {
-    name: "Wohnung",
-    priceFrom: 799,
-    points: ["2–3 Zimmer", "Wertanrechnung möglich", "Besenrein + Entsorgung"],
-    featured: true,
-  },
-  {
-    name: "Haus komplett",
-    priceFrom: 1999,
-    points: ["120–160 m²", "Mehrtageseinsatz", "inkl. Abtransport"],
-  },
+  { name: "Schnell & Klein", priceFrom: 199, points: ["Kellerabteil", "1–2m³ Entsorgung", "Besenrein"] },
+  { name: "Wohnung", priceFrom: 799, points: ["2–3 Zimmer", "Wertanrechnung möglich", "Besenrein + Entsorgung"], featured: true },
+  { name: "Haus komplett", priceFrom: 1999, points: ["120–160 m²", "Mehrtageseinsatz", "inkl. Abtransport"] },
 ];
 
 /** EUR-Formatierung „ab 199 €“ */
-function formatEuro(value: number) {
-  const f = new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
+function formatEuro(value: number): string {
+  const f = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
   return `ab ${f}`;
 }
 
@@ -74,46 +57,35 @@ export default function Pricing({ id = "preise", className, plans = PLANS_DEFAUL
         </p>
 
         <div
-          className="mt-8 md:mt-10 grid gap-4 md:gap-6"
-          style={{
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          }}
+          className="mt-6 sm:mt-8 grid gap-3 sm:gap-6"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
         >
-          {plans.map((p, idx) => {
-            const priceText =
-              p.priceLabel ?? (typeof p.priceFrom === "number" ? formatEuro(p.priceFrom) : undefined);
+          {plans.map((p) => {
+            const priceText = p.priceLabel ?? (typeof p.priceFrom === "number" ? formatEuro(p.priceFrom) : undefined);
 
             return (
               <Card
-                key={`${p.name}-${idx}`}
+                key={p.name}
                 className={[
-                  "relative",
+                  "relative h-full transition hover:-translate-y-0.5 hover:shadow-lg focus-within:ring-2 focus-within:ring-orange-600/40",
                   p.featured ? "ring-2 ring-orange-600/40" : "",
                 ].join(" ")}
                 aria-current={p.featured ? "true" : undefined}
               >
-                {/* Featured-Ribbon */}
                 {p.featured && (
-                  <div
-                    className="absolute -top-2 right-3 rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white shadow"
-                    aria-hidden="true"
-                  >
+                  <div className="absolute -top-2 right-3 rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white shadow" aria-hidden="true">
                     Beliebt
                   </div>
                 )}
 
                 <CardTitle>{p.name}</CardTitle>
 
-                {priceText && (
-                  <div className="mt-2 text-3xl font-black text-orange-600">
-                    {priceText}
-                  </div>
-                )}
+                {priceText && <div className="mt-2 text-3xl font-black text-orange-600">{priceText}</div>}
 
                 <CardContent>
                   <ul className="mt-4 space-y-2 text-slate-700">
-                    {p.points.map((pt, i) => (
-                      <li key={`${p.name}-point-${i}`} className="flex items-center gap-2">
+                    {p.points.map((pt) => (
+                      <li key={pt} className="flex items-center gap-2">
                         <CheckCircle className="text-orange-600" size={18} aria-hidden="true" />
                         <span>{pt}</span>
                       </li>
@@ -126,6 +98,7 @@ export default function Pricing({ id = "preise", className, plans = PLANS_DEFAUL
                     variant="pill"
                     href={p.href ?? "#angebot"}
                     aria-label={`Angebot anfordern – Paket ${p.name}`}
+                    className="w-full justify-center sm:w-auto"
                   >
                     Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
                   </Link>
@@ -135,7 +108,6 @@ export default function Pricing({ id = "preise", className, plans = PLANS_DEFAUL
           })}
         </div>
 
-        {/* Hinweis / Disclaimer */}
         <p className="mt-4 text-sm text-slate-500">
           Preise sind Richtwerte und können je nach Umfang, Zugangssituation und Entsorgungsvolumen variieren.
         </p>

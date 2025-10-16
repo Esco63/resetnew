@@ -14,28 +14,38 @@ const BENEFITS = [
 
 export default function Benefits() {
   return (
-    <Section id="vorteile" className="bg-slate-50 scroll-mt-[64px]">
-      <Container className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
+    <Section id="vorteile" className="bg-slate-50 scroll-mt-[var(--header-h-mobile)] md:scroll-mt-[var(--header-h-desktop)]">
+      <Container className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
         <div>
-          <Heading level={2}>Darum reset. in Schwerin</Heading>
-          <ul className="mt-6 space-y-4">
+          <Heading level={2} className="text-slate-900">
+            Darum reset. in Schwerin
+          </Heading>
+
+          <ul className="mt-5 space-y-3.5 md:space-y-4 text-slate-800">
             {BENEFITS.map((v) => (
-              <li key={v} className="flex items-start gap-3">
+              <li key={v} className="flex items-start gap-2.5">
                 <CheckCircle className="mt-0.5 text-orange-600" aria-hidden="true" />
-                <span>{v}</span>
+                <span className="leading-relaxed">{v}</span>
               </li>
             ))}
           </ul>
-          <Link variant="pill" href="#angebot" className="mt-8 inline-flex">
+
+          <Link variant="pill" href="#angebot" className="mt-7 inline-flex">
             Angebot sichern
           </Link>
         </div>
 
-        {/* Bildfläche */}
+        {/* Bildfläche (responsiv, mit sanfter Überblendung) */}
         <div
-          className="rounded-2xl overflow-hidden shadow-xl border bg-[url('https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center min-h-[320px]"
           aria-hidden="true"
-        />
+          className="relative rounded-2xl overflow-hidden border border-slate-200/70 shadow-md min-h-[280px] md:min-h-[360px] bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=2000&auto=format&fit=crop')",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-black/5" />
+        </div>
       </Container>
     </Section>
   );

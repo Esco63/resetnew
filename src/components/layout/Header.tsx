@@ -31,12 +31,9 @@ export default function Header() {
     <header
       className={[
         "fixed inset-x-0 top-0 z-50 transition-all",
-        // Default: oben SOLIDE (nicht transparent)
-        "border-b border-slate-200 bg-white shadow-sm",
-        // Nach Scroll: leicht transparent + Blur
-        scrolled ? "bg-white/75 backdrop-blur-md shadow" : "",
+        "border-b border-slate-200 bg-white shadow-sm",     // Start: solide
+        scrolled ? "bg-white/75 backdrop-blur-md shadow" : "" // Nach Scroll: leicht transparent + Blur
       ].join(" ")}
-      data-scrolled={scrolled ? "true" : "false"}
     >
       {/* Skip link */}
       <a
