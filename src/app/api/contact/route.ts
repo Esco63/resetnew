@@ -153,9 +153,8 @@ export async function POST(req: Request) {
       "Diese E-Mail ist eine automatische Empfangsbestätigung zu Ihrer Anfrage über unser Kontaktformular.",
       `Details zum Datenschutz: <a href="${BRAND.privacyUrl}" style="color:${BRAND.brandPrimary};text-decoration:underline;">Datenschutzerklärung</a>.`,
     ],
-    signature: true,
+    signature: true,          // <- Signatur an, Footer reduziert sich automatisch
     helpfulNextSteps: true,
-    // keine Buttons
     actions: [],
     variant: "external",
   });
@@ -222,15 +221,12 @@ async function sendBoth(
 ) {
   const { FROM, TO, subject, text, htmlInternal, htmlAuto, email, name, message, ip, envelopeFrom } = args;
 
-  // Anti-Spam: konsistenter Envelope, reduzierte Links/Buttons, sinnvolle Header
   const commonHeaders: Record<string, string> = {
     "X-Originating-IP": ip,
     "List-Unsubscribe": `<mailto:${BRAND.email}>`,
-    // Verhindert Autoresponder-Schleifen und wird von Microsoft/Google beachtet:
     "X-Auto-Response-Suppress": "All",
   };
 
-  // interne Benachrichtigung (reply-to auf Absender, wenn vorhanden)
   await transporter.sendMail({
     from: FROM,
     to: TO,
@@ -242,7 +238,6 @@ async function sendBoth(
     envelope: { from: envelopeFrom, to: TO },
   });
 
-  // Auto-Reply an Absender – klare Empfangsbestätigung
   if (email && email !== "") {
     await transporter.sendMail({
       from: FROM,
@@ -253,7 +248,6 @@ async function sendBoth(
       headers: {
         ...commonHeaders,
         "Auto-Submitted": "auto-replied",
-        // some MTAs auch dieses Feld:
         "Precedence": "auto_reply",
       },
       envelope: { from: envelopeFrom, to: email },
@@ -325,7 +319,10 @@ function mustEnv(key: string): string {
   return v;
 }
 
-/** Responsive, mobile- & Outlook-freundliches Template (ohne VML) */
+/** Responsive, mobile- & Outlook-freundliches Template (ohne VML)
+ *  Signatur zeigt die Kontaktdaten.
+ *  Footer darunter zeigt NUR Rechtliches (kein erneutes Adress-/Kontakt-Block).
+ */
 function emailTemplate(opts: {
   preheader?: string;
   title: string;
@@ -333,7 +330,7 @@ function emailTemplate(opts: {
   facts?: Array<[label: string, value: string]>;
   messageLabel?: string;
   messageBody?: string;
-  actions?: { label: string; href: string }[]; // wird leer übergeben
+  actions?: { label: string; href: string }[];
   legal?: string[];
   extraBox?: { title: string; contentPre: string };
   signature?: boolean;
@@ -358,7 +355,7 @@ function emailTemplate(opts: {
   const textColor = brand.brandDark;
   const muted = brand.brandMuted;
 
-  const actionsHtml = ""; // **hart deaktiviert** => keine Buttons überall
+  const actionsHtml = ""; // Buttons global deaktiviert
 
   const factsHtml =
     facts.length > 0
@@ -431,7 +428,51 @@ function emailTemplate(opts: {
        </td></tr>`
     : "";
 
+  /** Signatur: enthält die Kontaktdaten */
   const signatureBlock = signature
+    ? `<tr><td style="padding:16px 24px 8px 24px;">
+         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+           <tr>
+             <td style="vertical-align:top;width:56px;">
+               <div style="height:48px;width:48px;border-radius:12px;background:${brand.brandSoftBg};border:1px solid #e2e8f0;text-align:center;line-height:48px;font-weight:900;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${brand.brandPrimary};">r</div>
+             </td>
+             <td style="vertical-align:top;">
+               <p style="margin:0;font-weight:700;color:${textColor};font-size:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">${brand.name}</p>
+               <p style="margin:2px 0 0 0;color:${muted};font-size:12px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">Auflösen • Räumen • Neuanfangen</p>
+               <p style="margin:8px 0 0 0;color:${textColor};font-size:13px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+                 ${brand.address}<br/>
+                 Tel. ${brand.phoneHuman} • <a href="mailto:${brand.email}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.email}</a>
+               </p>
+               <p style="margin:6px 0 0 0;">
+                 <a href="${brand.site}" style="color:${brand.brandPrimary};font-size:12px;text-decoration:underline;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">${brand.site.replace(/^https?:\/\//, "")}</a>
+               </p>
+             </td>
+           </tr>
+         </table>
+       </td></tr>`
+    : "";
+
+  /** Footer: wenn Signatur aktiv, KEINE erneute Adress-/Kontaktzeile */
+  const footerContactHtml = signature
+    ? "" // keine Doppelung
+    : `<p style="margin:0 0 8px 0;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+         ${brand.name} • ${brand.address}<br/>
+         Tel. ${brand.phoneHuman} • <a href="mailto:${brand.email}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.email}</a> • 
+         <a href="${brand.site}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.site.replace(/^https?:\/\//, "")}</a>
+       </p>`;
+
+  const legalHtml =
+    legal.length
+      ? `<div style="margin-top:${signature ? "0" : "6px"};color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+           ${legal.map((l) => `<p style="margin:6px 0 0 0;">${l}</p>`).join("")}
+         </div>`
+      : "";
+
+  const legalLinks =
+    `<p style="margin:${signature ? "0" : "10px"} 0 0 0;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+       <a href="${brand.imprintUrl}" style="color:${brand.brandPrimary};text-decoration:underline;">Impressum</a> · 
+       <a href="${brand.privacyUrl}" style="color:${brand.brandPrimary};text-decoration:underline;">Datenschutz</a>
+     </p>`;
 
   return `
   <!doctype html>
@@ -485,22 +526,9 @@ function emailTemplate(opts: {
 
               <tr>
                 <td class="padded" style="padding:16px 24px 24px 24px;">
-                  <p style="margin:0 0 8px 0;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                    ${brand.name} • ${brand.address}<br/>
-                    Tel. ${brand.phoneHuman} • <a href="mailto:${brand.email}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.email}</a> • 
-                    <a href="${brand.site}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.site.replace(/^https?:\/\//, "")}</a>
-                  </p>
-                  ${
-                    legal.length
-                      ? `<div style="margin-top:6px;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                          ${legal.map((l) => `<p style="margin:6px 0 0 0;">${l}</p>`).join("")}
-                        </div>`
-                      : ""
-                  }
-                  <p style="margin:10px 0 0 0;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                    <a href="${brand.imprintUrl}" style="color:${brand.brandPrimary};text-decoration:underline;">Impressum</a> · 
-                    <a href="${brand.privacyUrl}" style="color:${brand.brandPrimary};text-decoration:underline;">Datenschutz</a>
-                  </p>
+                  ${footerContactHtml}
+                  ${legalHtml}
+                  ${legalLinks}
                 </td>
               </tr>
             </table>
