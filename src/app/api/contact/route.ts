@@ -13,7 +13,7 @@ const BRAND = {
   brandBg: "#ffffff",
   brandSoftBg: "#f8fafc",
   site: "https://reset-service.de",
-  email: "info@reset-service.de",           // muss zu deiner Domain-DKIM/SPF passen
+  email: "info@reset-service.de", // muss zu deiner Domain-DKIM/SPF passen
   phoneHuman: "0176 / 72190267",
   address: "Wuppertaler Str. 34, 19063 Schwerin",
   privacyUrl: "https://reset-service.de/rechtliches",
@@ -52,6 +52,22 @@ const ContactSchema = z
     path: ["email"],
   });
 
+/** --- Types --- */
+type SendBothArgs = {
+  FROM: string;
+  TO: string;
+  subject: string;
+  text: string;
+  htmlInternal: string;
+  htmlAuto: string;
+  email?: string;
+  name: string;
+  message: string;
+  ip: string;
+  envelopeFrom: string;
+  unsubscribeUrl: string;
+};
+
 export async function POST(req: Request) {
   const ip =
     req.headers.get("x-forwarded-for") ??
@@ -69,7 +85,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { ok: false, error: "Validation failed", details: parsed.error.flatten() },
-      { status: 422 } // Unprocessable Entity für Feldvalidierungsfehler
+      { status: 422 }
     );
   }
 
@@ -82,10 +98,16 @@ export async function POST(req: Request) {
 
   // Required ENV
   const TO = mustEnv("CONTACT_TO");
-  const FROM = mustEnv("CONTACT_FROM"); // z.B. 'reset. Schwerin <info@reset-service.de>'
+  const FROM = mustEnv("CONTACT_FROM"); // z.B. 'reset. Schwerin <info@reset-service.de>' ODER nur 'info@reset-service.de'
   const USER = mustEnv("SMTP_USER");
   const PASS = mustEnv("SMTP_PASS");
+
+  // Optional ENV (mit Defaults)
   const ENVELOPE_FROM = process.env.SMTP_ENVELOPE_FROM || BRAND.email; // z.B. bounce@reset-service.de
+  const SMTP_HOST = process.env.SMTP_HOST || "smtps.udag.de";
+  const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
+  const UNSUBSCRIBE_HTTPS =
+    process.env.UNSUBSCRIBE_HTTPS || `${BRAND.site}/api/unsubscribe`;
 
   /** Plaintext fallback */
   const text = [
@@ -120,17 +142,17 @@ export async function POST(req: Request) {
     ],
     messageLabel: "Nachricht",
     messageBody: message,
-    actions: [], // entfernt
+    actions: [],
     legal: [
       "Sie erhalten diese Benachrichtigung, weil das Kontaktformular auf Ihrer Website ausgefüllt wurde.",
       `Weitere Informationen zur Datenverarbeitung finden Sie in unserer <a href="${BRAND.privacyUrl}" style="color:${BRAND.brandPrimary};text-decoration:underline;">Datenschutzerklärung</a>.`,
     ],
-    // Vorschlag kann bleiben – nur kein Button
     extraBox: {
       title: "Vorgeschlagene Antwort",
       contentPre: replyTemplate(name, message),
     },
     variant: "internal",
+    signature: true, // interne Mail darf ruhig die Signatur zeigen
   });
 
   /** HTML (auto-reply to sender) – Empfangsbestätigung & „umgehend“ */
@@ -153,7 +175,7 @@ export async function POST(req: Request) {
       "Diese E-Mail ist eine automatische Empfangsbestätigung zu Ihrer Anfrage über unser Kontaktformular.",
       `Details zum Datenschutz: <a href="${BRAND.privacyUrl}" style="color:${BRAND.brandPrimary};text-decoration:underline;">Datenschutzerklärung</a>.`,
     ],
-    signature: true,          // <- Signatur an, Footer reduziert sich automatisch
+    signature: true,      // Signatur aktiv: Footer zeigt nur Rechtliches, keine Doppelung
     helpfulNextSteps: true,
     actions: [],
     variant: "external",
@@ -161,43 +183,114 @@ export async function POST(req: Request) {
 
   const subject = `Neue Kontaktanfrage – ${name}`;
 
+  // Optional DKIM
+  const dkim =
+    process.env.SMTP_DKIM_DOMAIN &&
+    process.env.SMTP_DKIM_SELECTOR &&
+    process.env.SMTP_DKIM_PRIVATE_KEY
+      ? {
+          domainName: process.env.SMTP_DKIM_DOMAIN,
+          keySelector: process.env.SMTP_DKIM_SELECTOR,
+          privateKey: process.env.SMTP_DKIM_PRIVATE_KEY.replace(/\\n/g, "\n"),
+          cacheDir: false as const,
+        }
+      : undefined;
+
   try {
-    // smtps.udag.de:465 (SSL)
-    const t465 = nodemailer.createTransport({
-      host: "smtps.udag.de",
-      port: 465,
-      secure: true,
+    // Primary Transport
+    const primary = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
       auth: { user: USER, pass: PASS },
       authMethod: "LOGIN",
+      requireTLS: SMTP_PORT !== 465,
       tls: { minVersion: "TLSv1.2", rejectUnauthorized: false },
+      dkim,
     });
 
-    await t465.verify();
-    await sendBoth(t465, { FROM, TO, subject, text, htmlInternal, htmlAuto, email: email || undefined, name, message, ip, envelopeFrom: ENVELOPE_FROM });
+    await primary.verify();
+    await sendBoth(primary, {
+      FROM,
+      TO,
+      subject,
+      text,
+      htmlInternal,
+      htmlAuto,
+      email: email || undefined,
+      name,
+      message,
+      ip,
+      envelopeFrom: ENVELOPE_FROM,
+      unsubscribeUrl: UNSUBSCRIBE_HTTPS,
+    });
     return NextResponse.json({ ok: true });
-  } catch (err465) {
-    console.warn("[contact] 465 failed, trying 587 STARTTLS:", (err465 as Error)?.message);
-
+  } catch (errPrimary) {
+    // Fallbacks: zuerst 465 SSL, dann 587 STARTTLS, falls Primary anderweitig gesetzt war
     try {
-      // smtp.udag.de:587 (STARTTLS)
-      const t587 = nodemailer.createTransport({
-        host: "smtp.udag.de",
-        port: 587,
-        secure: false,
+      const t465 = nodemailer.createTransport({
+        host: "smtps.udag.de",
+        port: 465,
+        secure: true,
         auth: { user: USER, pass: PASS },
         authMethod: "LOGIN",
-        requireTLS: true,
         tls: { minVersion: "TLSv1.2", rejectUnauthorized: false },
+        dkim,
       });
-
-      await t587.verify();
-      await sendBoth(t587, { FROM, TO, subject, text, htmlInternal, htmlAuto, email: email || undefined, name, message, ip, envelopeFrom: ENVELOPE_FROM });
+      await t465.verify();
+      await sendBoth(t465, {
+        FROM,
+        TO,
+        subject,
+        text,
+        htmlInternal,
+        htmlAuto,
+        email: email || undefined,
+        name,
+        message,
+        ip,
+        envelopeFrom: ENVELOPE_FROM,
+        unsubscribeUrl: UNSUBSCRIBE_HTTPS,
+      });
       return NextResponse.json({ ok: true });
-    } catch (err587) {
-      return NextResponse.json(
-        { ok: false, error: "SMTP login failed", debug: { a465: errAsJson(err465), b587: errAsJson(err587) } },
-        { status: 500 }
-      );
+    } catch (err465) {
+      try {
+        const t587 = nodemailer.createTransport({
+          host: "smtp.udag.de",
+          port: 587,
+          secure: false,
+          auth: { user: USER, pass: PASS },
+          authMethod: "LOGIN",
+          requireTLS: true,
+          tls: { minVersion: "TLSv1.2", rejectUnauthorized: false },
+          dkim,
+        });
+        await t587.verify();
+        await sendBoth(t587, {
+          FROM,
+          TO,
+          subject,
+          text,
+          htmlInternal,
+          htmlAuto,
+          email: email || undefined,
+          name,
+          message,
+          ip,
+          envelopeFrom: ENVELOPE_FROM,
+          unsubscribeUrl: UNSUBSCRIBE_HTTPS,
+        });
+        return NextResponse.json({ ok: true });
+      } catch (err587) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "SMTP login failed",
+            debug: { primary: errAsJson(errPrimary), a465: errAsJson(err465), b587: errAsJson(err587) },
+          },
+          { status: 500 }
+        );
+      }
     }
   }
 }
@@ -205,28 +298,33 @@ export async function POST(req: Request) {
 /** Versand: intern + (optional) Auto-Reply */
 async function sendBoth(
   transporter: Transporter,
-  args: {
-    FROM: string;
-    TO: string;
-    subject: string;
-    text: string;
-    htmlInternal: string;
-    htmlAuto: string;
-    email?: string;
-    name: string;
-    message: string;
-    ip: string;
-    envelopeFrom: string;
-  }
+  args: SendBothArgs
 ) {
-  const { FROM, TO, subject, text, htmlInternal, htmlAuto, email, name, message, ip, envelopeFrom } = args;
+  const {
+    FROM,
+    TO,
+    subject,
+    text,
+    htmlInternal,
+    htmlAuto,
+    email,
+    name,
+    message,
+    ip,
+    envelopeFrom,
+    unsubscribeUrl,
+  } = args;
 
+  // Anti-Spam: konsistente Header inkl. One-Click Unsubscribe
   const commonHeaders: Record<string, string> = {
     "X-Originating-IP": ip,
-    "List-Unsubscribe": `<mailto:${BRAND.email}>`,
+    "Content-Language": "de",
+    "List-Unsubscribe": `<mailto:${BRAND.email}>, <${unsubscribeUrl}>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     "X-Auto-Response-Suppress": "All",
   };
 
+  // interne Benachrichtigung
   await transporter.sendMail({
     from: FROM,
     to: TO,
@@ -238,6 +336,7 @@ async function sendBoth(
     envelope: { from: envelopeFrom, to: TO },
   });
 
+  // Auto-Reply an Absender
   if (email && email !== "") {
     await transporter.sendMail({
       from: FROM,
@@ -454,7 +553,7 @@ function emailTemplate(opts: {
 
   /** Footer: wenn Signatur aktiv, KEINE erneute Adress-/Kontaktzeile */
   const footerContactHtml = signature
-    ? "" // keine Doppelung
+    ? ""
     : `<p style="margin:0 0 8px 0;color:${muted};font-size:12px;line-height:1.6;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
          ${brand.name} • ${brand.address}<br/>
          Tel. ${brand.phoneHuman} • <a href="mailto:${brand.email}" style="color:${brand.brandPrimary};text-decoration:underline;">${brand.email}</a> • 
