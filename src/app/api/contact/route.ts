@@ -435,9 +435,7 @@ function emailTemplate(opts: {
     ? `<tr><td style="padding:16px 24px 8px 24px;">
          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
            <tr>
-             <td style="vertical-align:top;width:56px;">
-               <div style="height:48px;width:48px;border-radius:12px;background:${brand.brandSoftBg};border:1px solid #e2e8f0;text-align:center;line-height:48px;font-weight:900;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${brand.brandPrimary};">r</div>
-             </td>
+             
              <td style="vertical-align:top;">
                <p style="margin:0;font-weight:700;color:${textColor};font-size:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">${brand.name}</p>
                <p style="margin:2px 0 0 0;color:${muted};font-size:12px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">Auflösen • Räumen • Neuanfangen</p>
