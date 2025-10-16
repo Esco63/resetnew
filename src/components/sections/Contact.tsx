@@ -13,6 +13,8 @@ import ServiceAreaMap from "@/components/ServiceAreaMap";
 type SendStatus = "idle" | "loading" | "success" | "error";
 type FieldErrors = Record<string, string[] | undefined>;
 
+/* ------------------------- Helpers & Type Guards ------------------------- */
+
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
@@ -22,6 +24,32 @@ function getErrorMessage(err: unknown): string {
     return "Unbekannter Fehler";
   }
 }
+
+type ContactSuccess = { ok: true };
+type ContactFieldErrors = { details: { fieldErrors: FieldErrors } };
+type ContactError = { error: unknown };
+
+function isRecord(x: unknown): x is Record<string, unknown> {
+  return typeof x === "object" && x !== null;
+}
+
+function isSuccess(x: unknown): x is ContactSuccess {
+  return isRecord(x) && x.ok === true;
+}
+
+function hasFieldErrors(x: unknown): x is ContactFieldErrors {
+  if (!isRecord(x)) return false;
+  const details = x.details;
+  if (!isRecord(details)) return false;
+  const fe = (details as Record<string, unknown>).fieldErrors;
+  return isRecord(details) && typeof fe === "object" && fe !== null;
+}
+
+function hasErrorMessage(x: unknown): x is ContactError {
+  return isRecord(x) && "error" in x;
+}
+
+/* -------------------------------- Component ------------------------------ */
 
 export default function Contact() {
   const [status, setStatus] = useState<SendStatus>("idle");
@@ -37,10 +65,15 @@ export default function Contact() {
 
     const form = e.currentTarget;
     const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
 
-    const email = String(payload.email || "").trim();
-    const phone = String(payload.phone || "").trim();
+    // Nur string-basierte Felder in JSON übernehmen (keine Files)
+    const payloadEntries = Array.from(fd.entries()).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string"
+    );
+    const payload: Record<string, string> = Object.fromEntries(payloadEntries);
+
+    const email = (payload.email ?? "").trim();
+    const phone = (payload.phone ?? "").trim();
     if (!email && !phone) {
       setStatus("error");
       setFieldErrors({ email: ["Bitte gib E-Mail oder Telefon an."] });
@@ -56,36 +89,21 @@ export default function Contact() {
 
       const json: unknown = await res.json();
 
-      if (
-        typeof json === "object" &&
-        json !== null &&
-        "ok" in json &&
-        (json as { ok: boolean }).ok === true &&
-        res.ok
-      ) {
+      if (res.ok && isSuccess(json)) {
         setStatus("success");
         form.reset();
         setMsgLen(0);
         return;
       }
 
-      if (
-        typeof json === "object" &&
-        json !== null &&
-        "details" in json &&
-        (json as any).details?.fieldErrors
-      ) {
-        const fe = (json as { details: { fieldErrors: FieldErrors } }).details.fieldErrors;
-        setFieldErrors(fe);
+      if (hasFieldErrors(json)) {
+        setFieldErrors(json.details.fieldErrors);
         setStatus("error");
         return;
       }
 
       setStatus("error");
-      const message =
-        typeof json === "object" && json !== null && "error" in json
-          ? String((json as { error: unknown }).error)
-          : "Senden fehlgeschlagen.";
+      const message = hasErrorMessage(json) ? String(json.error) : "Senden fehlgeschlagen.";
       setErrorMsg(message);
     } catch (err: unknown) {
       setStatus("error");
@@ -103,7 +121,10 @@ export default function Contact() {
   const fe = (key: string) => fieldErrors?.[key]?.[0];
 
   return (
-    <Section id="kontakt" className="relative isolate bg-white scroll-mt-[var(--header-h-mobile)] md:scroll-mt-[var(--header-h-desktop)]">
+    <Section
+      id="kontakt"
+      className="relative isolate bg-white scroll-mt-[var(--header-h-mobile)] md:scroll-mt-[var(--header-h-desktop)]"
+    >
       <Container className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
         {/* Formular */}
         <div>
@@ -169,6 +190,7 @@ export default function Contact() {
                 minLength={10}
                 onChange={(e) => setMsgLen(e.currentTarget.value.trim().length)}
                 aria-describedby="message-help"
+                maxLength={5000}
               />
               <div
                 id="message-help"
@@ -186,7 +208,7 @@ export default function Contact() {
                 className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-6 py-3 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600 disabled:opacity-60"
               >
                 {status === "loading" ? "Wird gesendet…" : "Angebot anfordern"}{" "}
-                {status !== "loading" && <ArrowRight size={18} aria-hidden />}
+                {status !== "loading" && <ArrowRight size={18} aria-hidden="true" />}
               </button>
 
               <Link
@@ -195,7 +217,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-white font-semibold shadow hover:bg-emerald-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
               >
-                <MessageCircle size={18} aria-hidden /> WhatsApp Anfrage
+                <MessageCircle size={18} aria-hidden="true" /> WhatsApp Anfrage
               </Link>
             </div>
 
@@ -204,7 +226,7 @@ export default function Contact() {
                 <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 p-3">
                   <p className="m-0 flex items-start gap-2">
                     <span className="pt-[2px]">
-                      <Info size={16} aria-hidden />
+                      <Info size={16} aria-hidden="true" />
                     </span>
                     <span className="font-medium">Danke!</span>
                     <span className="whitespace-pre-line">
@@ -222,10 +244,10 @@ export default function Contact() {
 
             <ul className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
               <li className="flex items-center gap-1.5">
-                <Shield size={16} aria-hidden /> Unverbindlich & diskret
+                <Shield size={16} aria-hidden="true" /> Unverbindlich & diskret
               </li>
               <li className="flex items-center gap-1.5">
-                <Clock size={16} aria-hidden /> Rückmeldung umgehend
+                <Clock size={16} aria-hidden="true" /> Rückmeldung umgehend
               </li>
             </ul>
 
@@ -245,13 +267,13 @@ export default function Contact() {
 
           <div className="mt-4 grid gap-3 text-slate-700">
             <p className="flex items-center gap-2">
-              <Phone size={18} aria-hidden /> {business.phoneHuman}
+              <Phone size={18} aria-hidden="true" /> {business.phoneHuman}
             </p>
             <p className="flex items-center gap-2">
-              <Mail size={18} aria-hidden /> {business.email}
+              <Mail size={18} aria-hidden="true" /> {business.email}
             </p>
             <p className="flex items-center gap-2">
-              <MapPin size={18} aria-hidden />
+              <MapPin size={18} aria-hidden="true" />
               {business.address.street}, {business.address.zip} {business.address.city}
             </p>
           </div>
@@ -260,7 +282,10 @@ export default function Contact() {
             <ServiceAreaMap radiusMeters={25000} />
           </div>
           <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
-            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-orange-600 ring-2 ring-orange-200" aria-hidden />
+            <span
+              className="inline-flex h-2.5 w-2.5 rounded-full bg-orange-600 ring-2 ring-orange-200"
+              aria-hidden="true"
+            />
             <span>Servicegebiet: {business.serviceArea}</span>
           </div>
 
