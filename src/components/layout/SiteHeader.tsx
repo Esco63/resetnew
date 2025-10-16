@@ -35,6 +35,7 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [showTopbar, setShowTopbar] = useState(true);
 
+  // Scroll-Logik (Header-State + Topbar ein/aus)
   useEffect(() => {
     let lastY = window.scrollY;
     const onScroll = () => {
@@ -50,6 +51,7 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // CSS-Variablen für Section-Offsets
   useEffect(() => {
     const root = document.documentElement;
     const desktopTotal = DESKTOP_HEADER_H + (showTopbar ? TOPBAR_H : 0);
@@ -57,7 +59,7 @@ export default function SiteHeader() {
     root.style.setProperty("--header-h-desktop", `${desktopTotal}px`);
   }, [showTopbar]);
 
-  // >>> wichtig: oben voll weiß, beim Scroll halbtransparent + blur + border/shadow
+  // oben: voll weiß; nach Scroll/eingeklappter Topbar: halbtransparent + Blur + Border/Shadow
   const headerStateClass =
     scrolled || !showTopbar
       ? "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 shadow-sm"
@@ -66,6 +68,7 @@ export default function SiteHeader() {
   return (
     <header
       className={[
+        "site-fixed", // << wichtig: Safe-Area + kein Rechts-Überstand auf iOS
         "fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-out",
         headerStateClass,
       ].join(" ")}
@@ -82,7 +85,9 @@ export default function SiteHeader() {
       <div
         className={[
           "hidden md:block overflow-hidden transition-all duration-300 ease-out",
-          showTopbar ? "max-h-16 opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-2",
+          showTopbar
+            ? "max-h-16 opacity-100 translate-y-0"
+            : "max-h-0 opacity-0 -translate-y-2",
           "bg-slate-900 text-white text-sm",
         ].join(" ")}
         aria-hidden={!showTopbar}
@@ -123,6 +128,7 @@ export default function SiteHeader() {
 
       {/* Hauptleiste */}
       <Container className="py-3.5 flex items-center justify-between">
+        {/* Logo */}
         <NextLink
           href="/"
           className="text-2xl font-black tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600"
@@ -132,7 +138,11 @@ export default function SiteHeader() {
           <span className="text-orange-600">set.</span>
         </NextLink>
 
-        <nav aria-label="Hauptnavigation" className="hidden md:flex items-center gap-6 font-medium">
+        {/* Desktop-Navigation */}
+        <nav
+          aria-label="Hauptnavigation"
+          className="hidden md:flex items-center gap-6 font-medium"
+        >
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} variant="link">
               {n.label}
@@ -146,6 +156,7 @@ export default function SiteHeader() {
           </Link>
         </nav>
 
+        {/* Mobile Burger */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -158,7 +169,12 @@ export default function SiteHeader() {
         </button>
       </Container>
 
-      <div id="mobile-menu" hidden={!open} className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur">
+      {/* Mobile-Menü */}
+      <div
+        id="mobile-menu"
+        hidden={!open}
+        className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur"
+      >
         <Container className="py-3 grid gap-3 text-base">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} onClick={() => setOpen(false)}>

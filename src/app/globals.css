@@ -17,6 +17,7 @@
 
   --header-h-mobile: 76px;
   --header-h-desktop: 84px;
+  --sticky-h: 64px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -69,32 +70,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  max-width: 100%;
 }
 
-/* Links – nicht global umfärben (sonst überschreibt es text-white)! */
+/* Links */
 a {
   text-decoration: none;
 }
 a:hover {
   text-decoration: none;
 }
-/* Nur in Fließtexten ggf. auf Textfarbe setzen */
 .prose a {
   color: inherit;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
   letter-spacing: -0.02em;
+  color: #0f172a; /* Dunkel erzwingen */
 }
 
 ::selection {
   background: #f97316;
   color: #fff;
-} /* orange-500 */
+}
 
-/* Scrollbar (WebKit) dezent */
+/* Scrollbar (WebKit) */
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -161,7 +169,7 @@ h3 {
   @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md;
 }
 
-/* Fokus-Ring konsistent */
+/* Fokus-Ring */
 @utility focus-ring {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--brand];
 }
@@ -198,9 +206,7 @@ h3 {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* ===============================
-   Layout-Offsets & Hero-Helper
-   =============================== */
+/* Layout Offsets */
 main#main {
   padding-top: var(--header-h-mobile);
 }
@@ -209,8 +215,13 @@ main#main {
     padding-top: var(--header-h-desktop);
   }
 }
+@media (max-width: 768px) {
+  main#main {
+    padding-bottom: calc(var(--sticky-h) + env(safe-area-inset-bottom) + 16px);
+  }
+}
 
-/* Hero-Helper für weiße Typo */
+/* Hero-Helper */
 .hero h1,
 .hero h2,
 .hero p {
@@ -221,9 +232,7 @@ main#main {
   @apply text-shadow-sm;
 }
 
-/* ===============================
-   Mobile Typografie
-   =============================== */
+/* Mobile Typografie */
 @media (max-width: 768px) {
   h1 {
     font-size: 2rem;
@@ -243,18 +252,7 @@ main#main {
   }
 }
 
-/* =========================================================
-   ✅ Mobile Fix: Kein horizontales Scrollen auf Handy
-   ========================================================= */
-html,
-body {
-  overflow-x: hidden;          /* Verhindert horizontales Scrollen */
-  overscroll-behavior-x: none; /* Kein „Seitwärts-Bounce“ auf iOS */
-  touch-action: pan-y;         /* Nur vertikal scrollen */
-  max-width: 100%;
-}
-
-/* Medien dürfen nie über den Viewport hinauswachsen */
+/* Medien fix */
 img,
 video,
 svg,
@@ -264,27 +262,38 @@ canvas {
   height: auto;
 }
 
-/* Sicherheitshalber: Tabellen & iframes */
 iframe,
 table {
   max-width: 100%;
 }
 
-/* Leaflet-Karten overflow fix */
+/* Leaflet */
 .leaflet-container {
   width: 100% !important;
   max-width: 100% !important;
   overflow: hidden;
 }
 
-/* Tailwind w-screen fix auf iOS */
+/* w-screen Fix */
 @media (max-width: 768px) {
   .w-screen {
     width: 100% !important;
   }
 }
 
-/* Falls noch alte -mx-* Elemente existieren */
+/* Kein Überlauf durch Schatten */
 .no-x-overflow {
   overflow-x: clip;
+}
+
+/* Fixierte Elemente sauber innerhalb der Safe-Area */
+.site-fixed {
+  position: fixed;
+  left: env(safe-area-inset-left, 0);
+  right: env(safe-area-inset-right, 0);
+  width: auto;
+  max-width: 100%;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  contain: layout paint style;
 }
