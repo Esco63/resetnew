@@ -36,8 +36,11 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
 
   --radius-xl: var(--radius);
 }
@@ -47,9 +50,14 @@
    ====================== */
 *,
 *::before,
-*::after { box-sizing: border-box; }
+*::after {
+  box-sizing: border-box;
+}
 
-html { height: 100%; scroll-behavior: smooth; }
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
 
 body {
   min-height: 100%;
@@ -64,18 +72,36 @@ body {
 }
 
 /* Links – nicht global umfärben (sonst überschreibt es text-white)! */
-a { text-decoration: none; }
-a:hover { text-decoration: none; }
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
 /* Nur in Fließtexten ggf. auf Textfarbe setzen */
-.prose a { color: inherit; }
+.prose a {
+  color: inherit;
+}
 
-h1, h2, h3 { letter-spacing: -0.02em; }
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+}
 
-::selection { background: #f97316; color: #fff; } /* orange-500 */
+::selection {
+  background: #f97316;
+  color: #fff;
+} /* orange-500 */
 
 /* Scrollbar (WebKit) dezent */
-*::-webkit-scrollbar { width: 10px; height: 10px; }
-*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
 *::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--foreground) 20%, transparent);
   border-radius: 999px;
@@ -85,7 +111,9 @@ h1, h2, h3 { letter-spacing: -0.02em; }
 
 /* Bewegungsarme Nutzer */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
@@ -95,53 +123,168 @@ h1, h2, h3 { letter-spacing: -0.02em; }
 /* ==========================
    Keyframes & Utilities
    ========================== */
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
-@utility animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
-@utility animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+@utility animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+@utility animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
 
-@utility container-edge { padding-inline: var(--container-padding); }
+@utility container-edge {
+  padding-inline: var(--container-padding);
+}
 
 /* Cards */
-@utility card { @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-sm; }
-@utility card-elevated { @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md; }
+@utility card {
+  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-sm;
+}
+@utility card-elevated {
+  @apply rounded-2xl ring-1 ring-slate-200/60 bg-white shadow-md;
+}
 
 /* Fokus-Ring konsistent */
-@utility focus-ring { @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--brand]; }
+@utility focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--brand];
+}
 
 /* Buttons */
-@utility btn { @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.99] focus-ring; }
-@utility btn-primary { @apply btn bg-[--brand] text-white hover:bg-[--brand-700] shadow; }
-@utility btn-ghost { @apply btn bg-white/10 text-white backdrop-blur hover:bg-white/20; }
-@utility btn-emerald { @apply btn bg-emerald-600 text-white hover:bg-emerald-700; }
+@utility btn {
+  @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition active:scale-[0.99] focus-ring;
+}
+@utility btn-primary {
+  @apply btn bg-[--brand] text-white hover:bg-[--brand-700] shadow;
+}
+@utility btn-ghost {
+  @apply btn bg-white/10 text-white backdrop-blur hover:bg-white/20;
+}
+@utility btn-emerald {
+  @apply btn bg-emerald-600 text-white hover:bg-emerald-700;
+}
 
 /* Inputs */
-@utility input-soft { @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-[--brand]; }
+@utility input-soft {
+  @apply w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-[--brand];
+}
 
 /* Extra runde Ecken */
-@utility rounded-xl2 { border-radius: var(--radius-xl); }
+@utility rounded-xl2 {
+  border-radius: var(--radius-xl);
+}
 
 /* Text-Schatten für dunkle Hintergründe (Hero) */
-@utility text-shadow { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); }
-@utility text-shadow-sm { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35); }
+@utility text-shadow {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+@utility text-shadow-sm {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
 
 /* ===============================
    Layout-Offsets & Hero-Helper
    =============================== */
-main#main { padding-top: var(--header-h-mobile); }
-@media (min-width: 768px) { main#main { padding-top: var(--header-h-desktop); } }
+main#main {
+  padding-top: var(--header-h-mobile);
+}
+@media (min-width: 768px) {
+  main#main {
+    padding-top: var(--header-h-desktop);
+  }
+}
 
 /* Hero-Helper für weiße Typo */
-.hero h1, .hero h2, .hero p { color: #fff; }
-.hero h1, .hero p { @apply text-shadow-sm; }
+.hero h1,
+.hero h2,
+.hero p {
+  color: #fff;
+}
+.hero h1,
+.hero p {
+  @apply text-shadow-sm;
+}
 
 /* ===============================
    Mobile Typografie
    =============================== */
 @media (max-width: 768px) {
-  h1 { font-size: 2rem; line-height: 1.15; }
-  h2 { font-size: 1.5rem; line-height: 1.2; }
-  h3 { font-size: 1.25rem; line-height: 1.25; }
-  p  { font-size: 1rem; line-height: 1.65; }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  p {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+}
+
+/* =========================================================
+   ✅ Mobile Fix: Kein horizontales Scrollen auf Handy
+   ========================================================= */
+html,
+body {
+  overflow-x: hidden;          /* Verhindert horizontales Scrollen */
+  overscroll-behavior-x: none; /* Kein „Seitwärts-Bounce“ auf iOS */
+  touch-action: pan-y;         /* Nur vertikal scrollen */
+  max-width: 100%;
+}
+
+/* Medien dürfen nie über den Viewport hinauswachsen */
+img,
+video,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Sicherheitshalber: Tabellen & iframes */
+iframe,
+table {
+  max-width: 100%;
+}
+
+/* Leaflet-Karten overflow fix */
+.leaflet-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden;
+}
+
+/* Tailwind w-screen fix auf iOS */
+@media (max-width: 768px) {
+  .w-screen {
+    width: 100% !important;
+  }
+}
+
+/* Falls noch alte -mx-* Elemente existieren */
+.no-x-overflow {
+  overflow-x: clip;
 }
