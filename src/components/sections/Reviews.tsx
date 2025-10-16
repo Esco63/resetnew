@@ -17,35 +17,44 @@ export default function Reviews() {
       <Container>
         <Heading level={2}>Was Kund:innen sagen</Heading>
 
-        {/* Mobile: horizontal scroll mit snap; Desktop: Grid */}
-        <div className="mt-6 md:mt-8">
-          <div className="md:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-py-2">
+        {/* Mobile: horizontal scroll mit Snap + Fade-Rändern */}
+        <div
+          className="mt-6 md:hidden -mx-4 px-4"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+            maskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+          }}
+        >
+          <div role="list" className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-py-2 pb-2 -mb-2">
             {REVIEWS.map((r) => (
-              <Card key={r.name} className="min-w-[85%] snap-start">
+              <Card key={r.name} role="listitem" className="min-w-[85%] snap-center focus-within:ring-2 focus-within:ring-orange-600/40">
                 <div className="flex items-center gap-1" aria-label={`${r.stars} Sterne`}>
                   {Array.from({ length: r.stars }).map((_, i) => (
                     <Star key={i} size={18} className="text-orange-600 fill-orange-600" aria-hidden="true" />
                   ))}
                 </div>
                 <CardContent className="mt-3 text-slate-700">“{r.text}”</CardContent>
-                <div className="mt-3 text-sm text-slate-500">— {r.name}</div>
+                <div className="mt-3 text-sm text-slate-900 font-medium">— {r.name}</div>
               </Card>
             ))}
           </div>
+        </div>
 
-          <div className="hidden md:grid md:grid-cols-3 gap-4 md:gap-6">
-            {REVIEWS.map((r) => (
-              <Card key={r.name}>
-                <div className="flex items-center gap-1" aria-label={`${r.stars} Sterne`}>
-                  {Array.from({ length: r.stars }).map((_, i) => (
-                    <Star key={i} size={18} className="text-orange-600 fill-orange-600" aria-hidden="true" />
-                  ))}
-                </div>
-                <CardContent className="mt-3 text-slate-700">“{r.text}”</CardContent>
-                <div className="mt-3 text-sm text-slate-500">— {r.name}</div>
-              </Card>
-            ))}
-          </div>
+        {/* Desktop: Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-4 md:gap-6 md:mt-8">
+          {REVIEWS.map((r) => (
+            <Card key={r.name} className="h-full">
+              <div className="flex items-center gap-1" aria-label={`${r.stars} Sterne`}>
+                {Array.from({ length: r.stars }).map((_, i) => (
+                  <Star key={i} size={18} className="text-orange-600 fill-orange-600" aria-hidden="true" />
+                ))}
+              </div>
+              <CardContent className="mt-3 text-slate-700">“{r.text}”</CardContent>
+              <div className="mt-3 text-sm text-slate-900 font-medium">— {r.name}</div>
+            </Card>
+          ))}
         </div>
       </Container>
     </Section>

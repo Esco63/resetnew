@@ -1,5 +1,5 @@
-import TopBar from "@/components/layout/TopBar";
-import Header from "@/components/layout/Header";
+// src/app/page.tsx (oder entsprechende Route)
+import SiteHeader from "@/components/layout/SiteHeader";
 import StickyBar from "@/components/layout/StickyBar";
 import Footer from "@/components/layout/Footer";
 
@@ -22,12 +22,11 @@ export default function Page() {
       {/* SEO: LocalBusiness JSON-LD */}
       <JsonLd id="ld-localbusiness" data={buildLocalBusinessLd()} />
 
-      {/* Header (Top-Leiste + Navigation) */}
-      <TopBar />
-      <Header />
+      {/* Header inkl. Topbar (auto-hide) */}
+      <SiteHeader />
 
       {/* Hauptinhalt */}
-      <main id="main">
+      <main id="main" role="main">
         <Hero />
         <TrustBadges />
         <ServicesGrid />

@@ -32,19 +32,16 @@ type ContactError = { error: unknown };
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null;
 }
-
 function isSuccess(x: unknown): x is ContactSuccess {
   return isRecord(x) && x.ok === true;
 }
-
 function hasFieldErrors(x: unknown): x is ContactFieldErrors {
   if (!isRecord(x)) return false;
   const details = x.details;
   if (!isRecord(details)) return false;
   const fe = (details as Record<string, unknown>).fieldErrors;
-  return isRecord(details) && typeof fe === "object" && fe !== null;
+  return typeof fe === "object" && fe !== null;
 }
-
 function hasErrorMessage(x: unknown): x is ContactError {
   return isRecord(x) && "error" in x;
 }
@@ -141,19 +138,32 @@ export default function Contact() {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
+                <label htmlFor="c-name" className="sr-only">
+                  Ihr Name
+                </label>
                 <input
+                  id="c-name"
                   className="w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500"
                   placeholder="Ihr Name"
                   aria-label="Ihr Name"
                   name="name"
                   autoComplete="name"
+                  inputMode="text"
                   required
                 />
-                {fe("name") && <p className="mt-1 text-sm text-red-600">{fe("name")}</p>}
+                {fe("name") && (
+                  <p id="c-name-error" className="mt-1 text-sm text-red-600">
+                    {fe("name")}
+                  </p>
+                )}
               </div>
 
               <div>
+                <label htmlFor="c-email" className="sr-only">
+                  Ihre E-Mail
+                </label>
                 <input
+                  id="c-email"
                   className="w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500"
                   placeholder="Ihre E-Mail (optional)"
                   type="email"
@@ -162,12 +172,20 @@ export default function Contact() {
                   autoComplete="email"
                   inputMode="email"
                 />
-                {fe("email") && <p className="mt-1 text-sm text-red-600">{fe("email")}</p>}
+                {fe("email") && (
+                  <p id="c-email-error" className="mt-1 text-sm text-red-600">
+                    {fe("email")}
+                  </p>
+                )}
               </div>
             </div>
 
             <div>
+              <label htmlFor="c-phone" className="sr-only">
+                Telefon
+              </label>
               <input
+                id="c-phone"
                 className="w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500"
                 placeholder="Telefon (für Rückfragen, optional)"
                 aria-label="Telefon (für Rückfragen)"
@@ -176,11 +194,19 @@ export default function Contact() {
                 name="phone"
                 autoComplete="tel"
               />
-              {fe("phone") && <p className="mt-1 text-sm text-red-600">{fe("phone")}</p>}
+              {fe("phone") && (
+                <p id="c-phone-error" className="mt-1 text-sm text-red-600">
+                  {fe("phone")}
+                </p>
+              )}
             </div>
 
             <div>
+              <label htmlFor="c-message" className="sr-only">
+                Nachricht
+              </label>
               <textarea
+                id="c-message"
                 className="w-full rounded-xl border px-4 py-3 shadow-sm focus:ring-2 focus:ring-orange-500"
                 placeholder="Was sollen wir wo erledigen?"
                 rows={5}
@@ -191,6 +217,8 @@ export default function Contact() {
                 onChange={(e) => setMsgLen(e.currentTarget.value.trim().length)}
                 aria-describedby="message-help"
                 maxLength={5000}
+                autoCorrect="on"
+                autoCapitalize="sentences"
               />
               <div
                 id="message-help"
@@ -198,29 +226,55 @@ export default function Contact() {
               >
                 {messageHelp} <span className="text-slate-400">({msgLen}/5000)</span>
               </div>
-              {fe("message") && <p className="mt-1 text-sm text-red-600">{fe("message")}</p>}
+              {fe("message") && (
+                <p id="c-message-error" className="mt-1 text-sm text-red-600">
+                  {fe("message")}
+                </p>
+              )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            {/* CTAs – auf Mobile vollbreit */}
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
               <button
                 type="submit"
                 disabled={status === "loading" || msgLen < 10}
-                className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-6 py-3 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600 disabled:opacity-60"
+                aria-busy={status === "loading"}
+                className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-orange-600 px-6 py-3 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600 disabled:opacity-60"
               >
-                {status === "loading" ? "Wird gesendet…" : "Angebot anfordern"}{" "}
-                {status !== "loading" && <ArrowRight size={18} aria-hidden="true" />}
+                {status === "loading" ? (
+                  <>
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path
+                        className="opacity-75"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    Wird gesendet…
+                  </>
+                ) : (
+                  <>
+                    Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
+                  </>
+                )}
               </button>
 
               <Link
                 href={business.whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-white font-semibold shadow hover:bg-emerald-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
+                className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-white font-semibold shadow hover:bg-emerald-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
               >
                 <MessageCircle size={18} aria-hidden="true" /> WhatsApp Anfrage
               </Link>
             </div>
 
+            {/* Live-Region für Status */}
             <div aria-live="polite" className="min-h-[1.5rem]">
               {status === "success" && (
                 <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 p-3">
@@ -290,6 +344,24 @@ export default function Contact() {
           </div>
 
           <p className="mt-3 text-sm text-slate-500">Termine Mo–Fr 07:00–20:00 Uhr, Sa nach Vereinbarung</p>
+
+          {/* Mobile Quick Actions */}
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <Link
+              href={`tel:${business.phoneLink}`}
+              className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-white font-semibold shadow hover:bg-slate-800 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
+            >
+              Anrufen
+            </Link>
+            <Link
+              href={business.whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-white font-semibold shadow hover:bg-emerald-700 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
+            >
+              <MessageCircle size={18} aria-hidden="true" /> WhatsApp
+            </Link>
+          </div>
         </div>
       </Container>
     </Section>

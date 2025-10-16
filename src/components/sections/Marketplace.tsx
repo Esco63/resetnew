@@ -68,10 +68,53 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Info-Karten */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+        {/* Info-Karten: Mobile -> Horizontal scroll mit Snap + Fade-Rändern, Desktop -> Grid */}
+        <div
+          className="mt-8 md:hidden -mx-4 px-4"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+            maskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+          }}
+        >
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-py-2 pb-2 -mb-2">
+            <Card className="min-w-[82%] snap-center h-full">
+              <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
+                <MapPin className="text-orange-600" aria-hidden="true" />
+                Abholung nach Termin
+              </CardTitle>
+              <CardContent className="mt-2 text-slate-600">
+                <span className="font-medium">Abholadresse:</span> nach Vereinbarung. Termin bitte vorher abstimmen.
+              </CardContent>
+            </Card>
+
+            <Card className="min-w-[82%] snap-center h-full">
+              <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
+                <Truck className="text-orange-600" aria-hidden="true" />
+                Lieferung im Umkreis
+              </CardTitle>
+              <CardContent className="mt-2 text-slate-600">
+                Lieferung im Umkreis von Schwerin ist möglich. Sprechen Sie uns an – wir nennen Ihnen gern die Kosten.
+              </CardContent>
+            </Card>
+
+            <Card className="min-w-[82%] snap-center h-full">
+              <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
+                <Shield className="text-orange-600" aria-hidden="true" />
+                Hinweis
+              </CardTitle>
+              <CardContent className="mt-2 text-slate-600">
+                reset ist kein Ladengeschäft. Besichtigung und Abholung sind nur nach vorheriger Absprache möglich.
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Info-Karten Desktop */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
           <Card className="h-full">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
               <MapPin className="text-orange-600" aria-hidden="true" />
               Abholung nach Termin
             </CardTitle>
@@ -81,7 +124,7 @@ export default function Marketplace() {
           </Card>
 
           <Card className="h-full">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
               <Truck className="text-orange-600" aria-hidden="true" />
               Lieferung im Umkreis
             </CardTitle>
@@ -91,7 +134,7 @@ export default function Marketplace() {
           </Card>
 
           <Card className="h-full">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-slate-900 font-semibold">
               <Shield className="text-orange-600" aria-hidden="true" />
               Hinweis
             </CardTitle>
@@ -101,17 +144,54 @@ export default function Marketplace() {
           </Card>
         </div>
 
-        {/* Mini-FAQ */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+        {/* Mini-FAQ: Mobile -> Horizontal scroll, Desktop -> Grid */}
+        <div
+          className="mt-8 md:hidden -mx-4 px-4"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+            maskImage:
+              "linear-gradient(90deg, transparent 0, black 16px, black calc(100% - 16px), transparent 100%)",
+          }}
+        >
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-py-2 pb-2 -mb-2">
+            <Card className="min-w-[85%] snap-center">
+              <CardTitle className="text-slate-900 font-semibold">Versand möglich?</CardTitle>
+              <CardContent className="mt-2 text-slate-600">
+                Nein. Alle Artikel werden ausschließlich vor Ort abgeholt oder auf Wunsch im Umkreis geliefert.
+              </CardContent>
+            </Card>
+
+            <Card className="min-w-[85%] snap-center">
+              <CardTitle className="text-slate-900 font-semibold">Wie mache ich einen Termin?</CardTitle>
+              <CardContent className="mt-3 flex items-center justify-between gap-4">
+                <p className="text-slate-600 leading-relaxed">
+                  Am schnellsten telefonisch – rufen Sie uns direkt an.
+                </p>
+                <Link
+                  href={phoneHref}
+                  aria-label={`Jetzt anrufen: ${phoneLabel}`}
+                  className="shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-full bg-orange-600 text-white shadow hover:bg-orange-700 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
+                  title={`Jetzt anrufen: ${phoneLabel}`}
+                >
+                  <Phone aria-hidden="true" />
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Mini-FAQ Desktop */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mt-8">
           <Card>
-            <CardTitle>Versand möglich?</CardTitle>
+            <CardTitle className="text-slate-900 font-semibold">Versand möglich?</CardTitle>
             <CardContent className="mt-2 text-slate-600">
               Nein. Alle Artikel werden ausschließlich vor Ort abgeholt oder auf Wunsch im Umkreis geliefert.
             </CardContent>
           </Card>
 
           <Card>
-            <CardTitle>Wie mache ich einen Termin?</CardTitle>
+            <CardTitle className="text-slate-900 font-semibold">Wie mache ich einen Termin?</CardTitle>
             <CardContent className="mt-3 flex items-center justify-between gap-4">
               <p className="text-slate-600 leading-relaxed">
                 Am schnellsten telefonisch – rufen Sie uns direkt an.
