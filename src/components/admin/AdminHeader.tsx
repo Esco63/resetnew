@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ClipboardList, LogOut, Settings } from "lucide-react";
+import { ClipboardList, LogOut, Receipt, Settings } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const NAV = [
   { href: "/admin/auftraege", label: "Aufträge", icon: ClipboardList },
+  { href: "/admin/belege", label: "Belege", icon: Receipt },
   { href: "/admin/preise", label: "Preise", icon: Settings },
 ];
 
@@ -32,13 +33,13 @@ export function AdminHeader() {
               key={href}
               href={href}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold",
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-semibold sm:px-3",
                 pathname.startsWith(href)
                   ? "bg-slate-900 text-white"
                   : "text-slate-700 hover:bg-slate-100"
               )}
             >
-              <Icon size={15} aria-hidden="true" />
+              <Icon size={15} className="hidden sm:block" aria-hidden="true" />
               {label}
             </Link>
           ))}

@@ -1,14 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { disposalNetFromSasGross } from "@/lib/orders/invoice";
+import { readReceiptFile } from "@/lib/orders/sas";
+import { canReadReceipts } from "@/lib/orders/sas-extract";
 import { getOrder, getOrdersDb, requireAdmin } from "@/lib/orders/server";
 import {
   ORDER_FILE_COLUMNS,
   ORDER_FILE_KINDS,
   ORDERS_BUCKET,
+  type Order,
   type OrderFileKind,
 } from "@/lib/orders/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -111,16 +116,39 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const column = ORDER_FILE_COLUMNS[kind];
   const previous = order[column] as string | null;
 
+  const patch: Partial<Order> = { [column]: body.path };
+  let readError: string | null = null;
+  if (kind === "sas") {
+    // Ein Beleg aus der Beleg-Liste, der bisher diesem Auftrag zugeordnet war, wird wieder frei.
+    await db.from("sas_receipts").update({ status: "gelesen", order_id: null }).eq("order_id", id);
+
+    // Datum und Betrag direkt vom Beleg ablesen (falls eingerichtet).
+    if (canReadReceipts()) {
+      try {
+        const receipt = await readReceiptFile(body.path);
+        if (receipt.receipt_date) patch.work_date = receipt.receipt_date;
+        if (receipt.gross !== null) {
+          patch.sas_gross = receipt.gross;
+          patch.disposal_net = disposalNetFromSasGross(receipt.gross);
+        }
+        if (!receipt.is_sas_receipt) readError = "Sieht nicht wie ein SAS-Beleg aus – bitte Werte prüfen.";
+      } catch (error) {
+        readError = `Beleg gespeichert, aber nicht gelesen: ${(error as Error).message}`;
+      }
+    }
+  }
+
   const { data, error } = await db
     .from("orders")
-    .update({ [column]: body.path })
+    .update(patch)
     .eq("id", id)
     .select("*")
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  if (previous && previous !== body.path) {
+  // Nur eigene Uploads des Auftrags löschen – Dateien aus der Beleg-Liste bleiben.
+  if (previous && previous !== body.path && previous.startsWith(`${id}/`)) {
     await db.storage.from(ORDERS_BUCKET).remove([previous]);
   }
-  return NextResponse.json({ order: data });
+  return NextResponse.json({ order: data, readError });
 }

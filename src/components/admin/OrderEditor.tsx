@@ -4,18 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, FileText, Loader2, Send, Upload } from "lucide-react";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { prepareUploadFile, uploadWithTicket } from "@/lib/orders/client-upload";
 import {
   buildInvoicePreview,
   disposalNetFromSasGross,
   formatEuro,
 } from "@/lib/orders/invoice";
-import {
-  ORDER_STATUS_LABELS,
-  ORDERS_BUCKET,
-  type Order,
-  type OrderFileKind,
-} from "@/lib/orders/types";
+import { ORDER_STATUS_LABELS, type Order, type OrderFileKind } from "@/lib/orders/types";
 import { cn } from "@/lib/cn";
 
 const inputClass =
@@ -78,13 +73,11 @@ function FileSlot({
   const [error, setError] = useState("");
   const path = kind === "auftragsmail" ? order.order_mail_path : order.sas_receipt_path;
 
-  async function upload(file: File) {
+  async function upload(original: File) {
     setBusy(true);
     setError("");
     try {
-      const supabase = getSupabaseBrowserClient();
-      if (!supabase) throw new Error("Supabase ist nicht konfiguriert.");
-
+      const file = await prepareUploadFile(original);
       const contentType = file.type || "application/octet-stream";
       const ticketRes = await fetch(`/api/admin/orders/${order.id}/files`, {
         method: "POST",
@@ -96,19 +89,17 @@ function FileSlot({
         throw new Error(ticket.error || "Upload nicht möglich.");
       }
 
-      const { error: uploadError } = await supabase.storage
-        .from(ORDERS_BUCKET)
-        .uploadToSignedUrl(ticket.path, ticket.token, file, { contentType });
-      if (uploadError) throw new Error(uploadError.message);
+      await uploadWithTicket(file, { path: ticket.path, token: ticket.token });
 
       const confirmRes = await fetch(`/api/admin/orders/${order.id}/files`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kind, path: ticket.path }),
       });
-      const confirmed = (await confirmRes.json()) as { order?: Order; error?: string };
+      const confirmed = (await confirmRes.json()) as { order?: Order; error?: string; readError?: string | null };
       if (!confirmRes.ok || !confirmed.order) throw new Error(confirmed.error || "Upload fehlgeschlagen.");
       onUploaded(confirmed.order);
+      if (confirmed.readError) setError(confirmed.readError);
     } catch (uploadError) {
       setError((uploadError as Error).message);
     } finally {
@@ -279,7 +270,23 @@ export function OrderEditor({ initialOrder }: { initialOrder: Order }) {
             <input inputMode="decimal" placeholder="z. B. 3,5" value={draft.hours} disabled={locked} onChange={(e) => update("hours", e.target.value)} className={inputClass} />
           </label>
         </div>
-        <FileSlot order={order} kind="sas" label="SAS-Beleg" locked={locked} onUploaded={setOrder} />
+        <FileSlot
+          order={order}
+          kind="sas"
+          label="SAS-Beleg"
+          locked={locked}
+          onUploaded={(updated) => {
+            setOrder(updated);
+            // Vom Beleg gelesene Werte übernehmen, übrige Eingaben behalten
+            setDraft((current) => ({
+              ...current,
+              work_date: updated.work_date ?? current.work_date,
+              sas_gross: updated.sas_gross !== null ? toInput(updated.sas_gross) : current.sas_gross,
+              disposal_net: updated.disposal_net !== null ? toInput(updated.disposal_net) : current.disposal_net,
+            }));
+            if (updated.disposal_net !== null) setDisposalTouched(false);
+          }}
+        />
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1 text-sm font-medium text-slate-700">
             SAS gesamt (brutto)
