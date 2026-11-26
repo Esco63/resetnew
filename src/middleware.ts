@@ -6,7 +6,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === "/admin/login") {
     if (await isAdminRequest(req)) {
-      return NextResponse.redirect(new URL("/admin/preise", req.url));
+      return NextResponse.redirect(new URL("/admin/auftraege", req.url));
     }
     return NextResponse.next();
   }

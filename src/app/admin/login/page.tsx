@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
     }
 
     const nextUrl = new URL(window.location.href).searchParams.get("next");
-    router.replace(nextUrl || "/admin/preise");
+    router.replace(nextUrl || "/admin/auftraege");
     router.refresh();
   }
 

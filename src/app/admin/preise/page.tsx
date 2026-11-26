@@ -121,6 +121,12 @@ export default function AdminPreisePage() {
               Logout
             </button>
             <Link
+              href="/admin/auftraege"
+              className="rounded-full bg-orange-600 px-4 py-2 font-semibold text-white hover:bg-orange-700"
+            >
+              Aufträge
+            </Link>
+            <Link
               href="/"
               className="rounded-full border border-slate-300 bg-white px-4 py-2 font-semibold hover:bg-slate-100"
             >
