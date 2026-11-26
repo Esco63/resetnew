@@ -35,7 +35,7 @@ function Field({
         step={step}
         value={value}
         onChange={(event) => onChange(numberValue(event.target.value))}
-        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-600"
+        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-600"
       />
     </label>
   );
@@ -182,7 +182,7 @@ export default function AdminPreisePage() {
                   <input
                     value={plan.name}
                     onChange={(event) => updatePlan(index, { name: event.target.value })}
-                    className="rounded-lg border border-slate-300 px-3 py-2"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-base"
                   />
                 </label>
                 <div className="mt-3">
@@ -205,7 +205,7 @@ export default function AdminPreisePage() {
                           .filter(Boolean),
                       })
                     }
-                    className="rounded-lg border border-slate-300 px-3 py-2"
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-base"
                   />
                 </label>
                 <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-slate-700">

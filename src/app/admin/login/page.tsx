@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
             type="email"
             autoComplete="username"
             required
-            className="rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-600"
           />
         </label>
 
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
             type="password"
             autoComplete="current-password"
             required
-            className="rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+            className="rounded-lg border border-slate-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-600"
           />
         </label>
 
