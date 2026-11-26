@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Node-Bibliotheken für den Mail-Abruf nicht bündeln
+  serverExternalPackages: ["imapflow", "mailparser"],
 };
 
 export default nextConfig;

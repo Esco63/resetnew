@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { MailImportButton } from "@/components/admin/MailImportButton";
 import { buildInvoicePreview, formatEuro } from "@/lib/orders/invoice";
 import { listOrders } from "@/lib/orders/server";
 import { ORDER_STATUS_LABELS, type Order, type OrderStatus } from "@/lib/orders/types";
@@ -68,6 +69,8 @@ export default async function AuftraegePage() {
             <Plus size={16} aria-hidden="true" /> Neu
           </Link>
         </div>
+
+        <MailImportButton />
 
         {loadError && (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
