@@ -57,7 +57,7 @@ export default async function AuftraegePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen overflow-x-clip bg-slate-50 text-slate-900">
       <AdminHeader />
       <div className="mx-auto grid max-w-5xl gap-6 px-4 py-6 md:px-8">
         <div className="flex items-center justify-between gap-3">

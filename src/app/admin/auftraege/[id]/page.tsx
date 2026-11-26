@@ -14,7 +14,7 @@ export default async function AuftragPage({ params }: { params: Promise<{ id: st
   if (!order) notFound();
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen overflow-x-clip bg-slate-50 text-slate-900">
       <AdminHeader />
       <OrderEditor initialOrder={order} />
     </main>

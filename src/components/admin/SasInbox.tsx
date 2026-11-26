@@ -239,7 +239,7 @@ export function SasInbox() {
               <article
                 key={receipt.id}
                 className={cn(
-                  "grid gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-[200px_1fr]",
+                  "grid grid-cols-1 gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-[200px_minmax(0,1fr)]",
                   duplicate ? "border-red-300" : "border-slate-200"
                 )}
               >
@@ -248,7 +248,7 @@ export function SasInbox() {
                   path={receipt.file_path}
                   className="h-64 sm:h-72"
                 />
-                <div className="grid content-start gap-3">
+                <div className="grid min-w-0 content-start gap-3">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <span className="text-lg font-black">{dateLabel(receipt.receipt_date)}</span>
                     {receipt.receipt_time && <span className="text-slate-500">{receipt.receipt_time} Uhr</span>}
@@ -306,7 +306,7 @@ export function SasInbox() {
                       <select
                         value={selected}
                         onChange={(event) => setChoice((current) => ({ ...current, [receipt.id]: event.target.value }))}
-                        className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
+                        className="w-full min-w-0 flex-1 truncate rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
                       >
                         {candidates.length === 0 && <option value="">Kein offener Auftrag</option>}
                         {candidates.map((order) => (

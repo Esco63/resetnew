@@ -20,6 +20,7 @@
     "next": "^15.5.16",
     "nodemailer": "^8.0.7",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.10.38",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",

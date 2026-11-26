@@ -37,7 +37,7 @@ export default function NeuerAuftragPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen overflow-x-clip bg-slate-50 text-slate-900">
       <AdminHeader />
       <div className="mx-auto max-w-xl px-4 py-6 md:px-8">
         <h1 className="text-3xl font-black tracking-tight">Neuer Auftrag</h1>
