@@ -7,8 +7,18 @@ function getSecret() {
   return process.env.ADMIN_SESSION_SECRET || "dev-only-admin-session-secret";
 }
 
+/** E-Mail ohne Leerzeichen/Zeilenumbrüche und ohne Groß-/Kleinschreibung vergleichen. */
+export function normalizeAdminEmail(value: unknown) {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+/** Passwort aus Vercel ohne versehentliche Leerzeichen/Zeilenumbrüche am Rand. */
+export function normalizeAdminPassword(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function getAdminEmail() {
-  return process.env.ADMIN_EMAIL || "";
+  return normalizeAdminEmail(process.env.ADMIN_EMAIL);
 }
 
 async function hmac(input: string) {
@@ -55,7 +65,7 @@ export async function verifyAdminSession(token?: string | null) {
 
   try {
     const data = decodePayload(payload);
-    return data.email === getAdminEmail() && data.exp > Date.now();
+    return normalizeAdminEmail(data.email) === getAdminEmail() && data.exp > Date.now();
   } catch {
     return false;
   }
