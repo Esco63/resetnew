@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { disposalNetFromSasGross } from "@/lib/orders/invoice";
-import { readReceiptFile } from "@/lib/orders/sas";
+import { describeDuplicate, findReceiptByHash, readAndStoreReceipt } from "@/lib/orders/sas";
 import { canReadReceipts } from "@/lib/orders/sas-extract";
 import { getOrder, getOrdersDb, requireAdmin } from "@/lib/orders/server";
 import {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (denied) return denied;
 
   const { id } = await params;
-  const body = (await req.json()) as { kind?: string; contentType?: string };
+  const body = (await req.json()) as { kind?: string; contentType?: string; hash?: string };
   const kind = parseKind(body.kind);
   if (!kind || !UPLOAD_KINDS.includes(kind)) {
     return NextResponse.json({ error: "Unbekannte Dateiart." }, { status: 400 });
@@ -69,6 +69,14 @@ export async function POST(req: NextRequest, { params }: Params) {
   const ext = ALLOWED_TYPES[body.contentType ?? ""];
   if (!ext) {
     return NextResponse.json({ error: "Bitte ein PDF oder Foto hochladen." }, { status: 400 });
+  }
+
+  // Genau diese Belegdatei gibt es schon → nicht noch einmal speichern.
+  if (kind === "sas" && /^[0-9a-f]{64}$/.test(body.hash ?? "")) {
+    const existing = await findReceiptByHash(body.hash!);
+    if (existing && existing.order_id !== id) {
+      return NextResponse.json({ error: await describeDuplicate(existing) }, { status: 409 });
+    }
   }
 
   const order = await getOrder(id);
@@ -93,7 +101,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   if (denied) return denied;
 
   const { id } = await params;
-  const body = (await req.json()) as { kind?: string; path?: string };
+  const body = (await req.json()) as { kind?: string; path?: string; hash?: string };
   const kind = parseKind(body.kind);
   if (!kind || !UPLOAD_KINDS.includes(kind) || !body.path) {
     return NextResponse.json({ error: "Ungültige Angaben." }, { status: 400 });
@@ -119,19 +127,32 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const patch: Partial<Order> = { [column]: body.path };
   let readError: string | null = null;
   if (kind === "sas") {
-    // Ein Beleg aus der Beleg-Liste, der bisher diesem Auftrag zugeordnet war, wird wieder frei.
-    await db.from("sas_receipts").update({ status: "gelesen", order_id: null }).eq("order_id", id);
+    // Bisherige Belege dieses Auftrags: eigene Uploads verschwinden, Belege aus der Liste werden wieder frei.
+    const { data: previousRows } = await db.from("sas_receipts").select("id, file_path").eq("order_id", id);
+    for (const row of previousRows ?? []) {
+      if (row.file_path.startsWith(`${id}/`)) await db.from("sas_receipts").delete().eq("id", row.id);
+      else await db.from("sas_receipts").update({ status: "gelesen", order_id: null }).eq("id", row.id);
+    }
+
+    // Beleg auch in der Beleg-Liste führen, damit Dubletten erkannt werden.
+    const hash = /^[0-9a-f]{64}$/.test(body.hash ?? "") ? body.hash! : null;
+    const { data: row, error: rowError } = await db
+      .from("sas_receipts")
+      .insert({ file_path: body.path, status: "zugeordnet", order_id: id, file_hash: hash })
+      .select("id")
+      .single();
+    if (rowError) return NextResponse.json({ error: rowError.message }, { status: 500 });
 
     // Datum und Betrag direkt vom Beleg ablesen (falls eingerichtet).
     if (canReadReceipts()) {
       try {
-        const receipt = await readReceiptFile(body.path);
+        const receipt = await readAndStoreReceipt(row.id);
         if (receipt.receipt_date) patch.work_date = receipt.receipt_date;
         if (receipt.gross !== null) {
           patch.sas_gross = receipt.gross;
-          patch.disposal_net = disposalNetFromSasGross(receipt.gross);
+          patch.disposal_net = disposalNetFromSasGross(Number(receipt.gross));
         }
-        if (!receipt.is_sas_receipt) readError = "Sieht nicht wie ein SAS-Beleg aus – bitte Werte prüfen.";
+        if (receipt.error) readError = receipt.error;
       } catch (error) {
         readError = `Beleg gespeichert, aber nicht gelesen: ${(error as Error).message}`;
       }

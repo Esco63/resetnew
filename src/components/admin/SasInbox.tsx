@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Link2Off, Loader2, RotateCw, Trash2, Upload } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { prepareUploadFile, uploadWithTicket } from "@/lib/orders/client-upload";
+import { fileHash, prepareUploadFile, uploadWithTicket } from "@/lib/orders/client-upload";
+import { FilePreview } from "./FilePreview";
 import { disposalNetFromSasGross, formatEuro } from "@/lib/orders/invoice";
 import type { SasReceipt } from "@/lib/orders/sas";
 import type { Order } from "@/lib/orders/types";
@@ -30,7 +31,7 @@ function rankOrders(orders: Order[], receipt: SasReceipt, takenOrderIds: Set<str
     .map(({ order }) => order);
 }
 
-type UploadState = { name: string; state: "upload" | "read" | "fertig" | "fehler"; error?: string };
+type UploadState = { name: string; state: "upload" | "read" | "fertig" | "doppelt" | "fehler"; error?: string };
 
 export function SasInbox() {
   const [receipts, setReceipts] = useState<SasReceipt[]>([]);
@@ -100,17 +101,27 @@ export function SasInbox() {
 
     for (const [index, original] of files.entries()) {
       try {
+        const hash = await fileHash(original);
         const file = await prepareUploadFile(original);
         const ticketRes = await fetch("/api/admin/sas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contentType: file.type }),
+          body: JSON.stringify({ contentType: file.type, hash }),
         });
         const ticket = (await ticketRes.json()) as { id?: string; path?: string; token?: string; error?: string };
+        if (ticketRes.status === 409) {
+          update(index, { state: "doppelt", error: ticket.error });
+          continue;
+        }
         if (!ticketRes.ok || !ticket.id || !ticket.path || !ticket.token) {
           throw new Error(ticket.error || "Upload nicht möglich.");
         }
-        await uploadWithTicket(file, { path: ticket.path, token: ticket.token });
+        try {
+          await uploadWithTicket(file, { path: ticket.path, token: ticket.token });
+        } catch (uploadError) {
+          await fetch(`/api/admin/sas/${ticket.id}`, { method: "DELETE" });
+          throw uploadError;
+        }
 
         update(index, { state: "read" });
         const readRes = await fetch(`/api/admin/sas/${ticket.id}`, {
@@ -118,9 +129,10 @@ export function SasInbox() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "read" }),
         });
-        const read = (await readRes.json()) as { error?: string };
+        const read = (await readRes.json()) as { receipt?: SasReceipt; error?: string };
         if (!readRes.ok) throw new Error(read.error || "Beleg konnte nicht gelesen werden.");
-        update(index, { state: "fertig" });
+        if (read.receipt?.status === "doppelt") update(index, { state: "doppelt", error: read.receipt.error ?? undefined });
+        else update(index, { state: "fertig" });
       } catch (error) {
         update(index, { state: "fehler", error: (error as Error).message });
       }
@@ -182,20 +194,21 @@ export function SasInbox() {
       {uploads.length > 0 && (
         <ul className="grid gap-1 rounded-2xl border border-slate-200 bg-white p-3 text-sm shadow-sm">
           {uploads.map((item, index) => (
-            <li key={`${item.name}-${index}`} className="flex items-center gap-2">
+            <li key={`${item.name}-${index}`} className="flex items-start gap-2">
               {item.state === "fertig" ? (
                 <CheckCircle2 size={16} className="text-emerald-600" aria-hidden="true" />
-              ) : item.state === "fehler" ? (
-                <AlertTriangle size={16} className="text-red-600" aria-hidden="true" />
+              ) : item.state === "fehler" || item.state === "doppelt" ? (
+                <AlertTriangle size={16} className={item.state === "doppelt" ? "text-amber-600" : "text-red-600"} aria-hidden="true" />
               ) : (
                 <Loader2 size={16} className="animate-spin text-slate-500" aria-hidden="true" />
               )}
               <span className="truncate">{item.name}</span>
-              <span className="ml-auto shrink-0 text-slate-500">
+              <span className="ml-auto max-w-[65%] text-right text-slate-500">
                 {item.state === "upload" && "lädt hoch…"}
                 {item.state === "read" && "wird gelesen…"}
                 {item.state === "fertig" && "fertig"}
                 {item.state === "fehler" && <span className="text-red-700">{item.error}</span>}
+                {item.state === "doppelt" && <span className="text-amber-800">{item.error || "Doppelt – schon vorhanden."}</span>}
               </span>
             </li>
           ))}
@@ -221,78 +234,140 @@ export function SasInbox() {
             const candidates = rankOrders(orders, receipt, new Set([...takenByReceipt, ...ordersWithForeignReceipt]));
             const selected = choice[receipt.id] ?? candidates[0]?.id ?? "";
             const busy = busyId === receipt.id;
+            const duplicate = receipt.status === "doppelt";
             return (
-              <article key={receipt.id} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="text-lg font-black">{dateLabel(receipt.receipt_date)}</span>
-                  {receipt.receipt_time && <span className="text-slate-500">{receipt.receipt_time} Uhr</span>}
-                  {receipt.receipt_number && <span className="text-slate-500">Beleg {receipt.receipt_number}</span>}
-                  <span className="ml-auto font-semibold">
-                    {receipt.gross !== null ? formatEuro(Number(receipt.gross)) : "Betrag ?"}
-                  </span>
-                </div>
-                {receipt.gross !== null && (
-                  <p className="-mt-2 text-sm text-slate-500">
-                    → Entsorgung auf der Rechnung: {formatEuro(disposalNetFromSasGross(Number(receipt.gross)))} netto
-                  </p>
+              <article
+                key={receipt.id}
+                className={cn(
+                  "grid gap-4 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-[200px_1fr]",
+                  duplicate ? "border-red-300" : "border-slate-200"
                 )}
-                {(receipt.error || rowError[receipt.id]) && (
-                  <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                    {rowError[receipt.id] || receipt.error}
-                  </p>
-                )}
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <select
-                    value={selected}
-                    onChange={(event) => setChoice((current) => ({ ...current, [receipt.id]: event.target.value }))}
-                    className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
-                  >
-                    {candidates.length === 0 && <option value="">Kein offener Auftrag</option>}
-                    {candidates.map((order) => (
-                      <option key={order.id} value={order.id}>
-                        {order.object_address || "Ohne Adresse"} · Mail{" "}
-                        {dateLabel(order.mail_received_at ?? order.created_at)}
-                        {order.work_date ? ` · Einsatz ${dateLabel(order.work_date)}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    disabled={!selected || busy}
-                    onClick={() => void action(receipt.id, { action: "assign", orderId: selected })}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 font-semibold text-white shadow hover:bg-orange-700 disabled:opacity-50"
-                  >
-                    {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <CheckCircle2 size={16} aria-hidden="true" />}
-                    Zuordnen
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2 text-sm">
-                  <a
-                    href={`/api/admin/sas/${receipt.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-slate-300 px-3 py-1 font-semibold hover:bg-slate-100"
-                  >
-                    Beleg ansehen
-                  </a>
-                  {canRead && (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void action(receipt.id, { action: "read" })}
-                      className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 font-semibold hover:bg-slate-100"
-                    >
-                      <RotateCw size={14} aria-hidden="true" /> Neu lesen
-                    </button>
+              >
+                <FilePreview
+                  src={`/api/admin/sas/${receipt.id}`}
+                  path={receipt.file_path}
+                  className="h-64 sm:h-72"
+                />
+                <div className="grid content-start gap-3">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="text-lg font-black">{dateLabel(receipt.receipt_date)}</span>
+                    {receipt.receipt_time && <span className="text-slate-500">{receipt.receipt_time} Uhr</span>}
+                    {receipt.receipt_number && <span className="text-slate-500">Beleg {receipt.receipt_number}</span>}
+                    <span className="ml-auto font-semibold">
+                      {receipt.gross !== null ? formatEuro(Number(receipt.gross)) : "Betrag ?"}
+                    </span>
+                  </div>
+                  {receipt.gross !== null && (
+                    <p className="-mt-2 text-sm text-slate-500">
+                      → Entsorgung auf der Rechnung: {formatEuro(disposalNetFromSasGross(Number(receipt.gross)))} netto
+                    </p>
                   )}
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void remove(receipt.id)}
-                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 size={14} aria-hidden="true" /> Löschen
-                  </button>
+                  {receipt.items && receipt.items.length > 0 && (
+                    <ul className="text-sm text-slate-600">
+                      {receipt.items.map((item, index) => (
+                        <li key={index} className="flex gap-2">
+                          <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                          {item.amount !== null && <span>{formatEuro(Number(item.amount))}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {(receipt.error || rowError[receipt.id]) && (
+                    <p
+                      className={cn(
+                        "rounded-lg px-3 py-2 text-sm",
+                        duplicate ? "bg-red-50 font-medium text-red-800" : "bg-amber-50 text-amber-900"
+                      )}
+                    >
+                      {rowError[receipt.id] || receipt.error}
+                    </p>
+                  )}
+                  {duplicate ? (
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void remove(receipt.id)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-red-600 px-4 py-2 font-semibold text-white shadow hover:bg-red-700 disabled:opacity-50"
+                      >
+                        <Trash2 size={16} aria-hidden="true" /> Doppelten Beleg löschen
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void action(receipt.id, { action: "keep" })}
+                        className="rounded-full border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-100 disabled:opacity-50"
+                      >
+                        Trotzdem behalten
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <select
+                        value={selected}
+                        onChange={(event) => setChoice((current) => ({ ...current, [receipt.id]: event.target.value }))}
+                        className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base"
+                      >
+                        {candidates.length === 0 && <option value="">Kein offener Auftrag</option>}
+                        {candidates.map((order) => (
+                          <option key={order.id} value={order.id}>
+                            {order.object_address || "Ohne Adresse"} · Mail{" "}
+                            {dateLabel(order.mail_received_at ?? order.created_at)}
+                            {order.work_date ? ` · Einsatz ${dateLabel(order.work_date)}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={!selected || busy}
+                        onClick={() => void action(receipt.id, { action: "assign", orderId: selected })}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-orange-600 px-4 py-2 font-semibold text-white shadow hover:bg-orange-700 disabled:opacity-50"
+                      >
+                        {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <CheckCircle2 size={16} aria-hidden="true" />}
+                        Zuordnen
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2 text-sm">
+                    <a
+                      href={`/api/admin/sas/${receipt.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full border border-slate-300 px-3 py-1 font-semibold hover:bg-slate-100"
+                    >
+                      Beleg groß ansehen
+                    </a>
+                    {duplicate && receipt.duplicate_of && (
+                      <a
+                        href={`/api/admin/sas/${receipt.duplicate_of}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-slate-300 px-3 py-1 font-semibold hover:bg-slate-100"
+                      >
+                        Original ansehen
+                      </a>
+                    )}
+                    {canRead && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void action(receipt.id, { action: "read" })}
+                        className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 font-semibold hover:bg-slate-100"
+                      >
+                        <RotateCw size={14} aria-hidden="true" /> Neu lesen
+                      </button>
+                    )}
+                    {!duplicate && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void remove(receipt.id)}
+                        className="inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 size={14} aria-hidden="true" /> Löschen
+                      </button>
+                    )}
+                  </div>
                 </div>
               </article>
             );

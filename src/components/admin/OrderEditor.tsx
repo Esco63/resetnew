@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, FileText, Loader2, Send, Upload } from "lucide-react";
-import { prepareUploadFile, uploadWithTicket } from "@/lib/orders/client-upload";
+import { fileHash, prepareUploadFile, uploadWithTicket } from "@/lib/orders/client-upload";
+import { FilePreview } from "./FilePreview";
 import {
   buildInvoicePreview,
   disposalNetFromSasGross,
@@ -77,12 +78,13 @@ function FileSlot({
     setBusy(true);
     setError("");
     try {
+      const hash = kind === "sas" ? await fileHash(original) : undefined;
       const file = await prepareUploadFile(original);
       const contentType = file.type || "application/octet-stream";
       const ticketRes = await fetch(`/api/admin/orders/${order.id}/files`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, contentType }),
+        body: JSON.stringify({ kind, contentType, hash }),
       });
       const ticket = (await ticketRes.json()) as { path?: string; token?: string; error?: string };
       if (!ticketRes.ok || !ticket.path || !ticket.token) {
@@ -94,7 +96,7 @@ function FileSlot({
       const confirmRes = await fetch(`/api/admin/orders/${order.id}/files`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, path: ticket.path }),
+        body: JSON.stringify({ kind, path: ticket.path, hash }),
       });
       const confirmed = (await confirmRes.json()) as { order?: Order; error?: string; readError?: string | null };
       if (!confirmRes.ok || !confirmed.order) throw new Error(confirmed.error || "Upload fehlgeschlagen.");
@@ -150,6 +152,14 @@ function FileSlot({
         )}
       </div>
       {error && <p className="mt-2 text-sm font-medium text-red-700">{error}</p>}
+      {path && (
+        <FilePreview
+          key={path}
+          src={`/api/admin/orders/${order.id}/files?kind=${kind}&v=${encodeURIComponent(path)}`}
+          path={path}
+          className="mt-3 h-56"
+        />
+      )}
     </div>
   );
 }

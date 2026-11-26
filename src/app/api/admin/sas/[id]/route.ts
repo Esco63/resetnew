@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   assignReceipt,
   getReceipt,
+  keepReceipt,
   readAndStoreReceipt,
   unassignReceipt,
 } from "@/lib/orders/sas";
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest, { params }: Params) {
  *   { action: "read" }                      – mit Claude auslesen
  *   { action: "assign", orderId: "<uuid>" } – einem Auftrag zuordnen
  *   { action: "unassign" }                  – Zuordnung lösen
+ *   { action: "keep" }                      – als doppelt erkannten Beleg behalten
  */
 export async function POST(req: NextRequest, { params }: Params) {
   const denied = await requireAdmin(req);
@@ -51,6 +53,8 @@ export async function POST(req: NextRequest, { params }: Params) {
         return NextResponse.json({ receipt: await assignReceipt(id, body.orderId) });
       case "unassign":
         return NextResponse.json({ receipt: await unassignReceipt(id) });
+      case "keep":
+        return NextResponse.json({ receipt: await keepReceipt(id) });
       default:
         return NextResponse.json({ error: "Unbekannte Aktion." }, { status: 400 });
     }

@@ -31,6 +31,16 @@ export async function prepareUploadFile(file: File): Promise<File> {
   }
 }
 
+/** SHA-256 der Originaldatei – erkennt, ob genau diese Datei schon hochgeladen wurde. */
+export async function fileHash(file: File) {
+  try {
+    const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  } catch {
+    return undefined;
+  }
+}
+
 /** Lädt eine Datei mit einem signierten Upload-Ticket direkt zu Supabase hoch. */
 export async function uploadWithTicket(file: File, ticket: { path: string; token: string }) {
   const supabase = getSupabaseBrowserClient();

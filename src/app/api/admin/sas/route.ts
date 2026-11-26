@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { RECEIPT_TYPES, listReceipts } from "@/lib/orders/sas";
+import { RECEIPT_TYPES, describeDuplicate, findReceiptByHash, listReceipts } from "@/lib/orders/sas";
 import { canReadReceipts } from "@/lib/orders/sas-extract";
 import { getOrdersDb, listOrders, requireAdmin } from "@/lib/orders/server";
 import { ORDERS_BUCKET } from "@/lib/orders/types";
@@ -29,13 +29,25 @@ export async function POST(req: NextRequest) {
   const denied = await requireAdmin(req);
   if (denied) return denied;
 
-  const body = (await req.json()) as { contentType?: string };
+  const body = (await req.json()) as { contentType?: string; hash?: string };
   const ext = RECEIPT_TYPES[body.contentType ?? ""];
   if (!ext) {
     return NextResponse.json(
       { error: "Bitte ein PDF oder Foto (JPG/PNG) hochladen." },
       { status: 400 }
     );
+  }
+  const hash = /^[0-9a-f]{64}$/.test(body.hash ?? "") ? body.hash! : null;
+
+  // Genau diese Datei wurde schon hochgeladen → gar nicht erst speichern.
+  if (hash) {
+    const existing = await findReceiptByHash(hash);
+    if (existing) {
+      return NextResponse.json(
+        { error: await describeDuplicate(existing), duplicateOf: existing.id },
+        { status: 409 }
+      );
+    }
   }
 
   const db = getOrdersDb();
@@ -49,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await db
     .from("sas_receipts")
-    .insert({ file_path: path, status: "neu" })
+    .insert({ file_path: path, status: "neu", file_hash: hash })
     .select("id")
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
