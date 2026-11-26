@@ -53,7 +53,15 @@ export default function Footer() {
           <span className="text-sm text-slate-600">
             © {new Date().getFullYear()} reset. Alle Rechte vorbehalten.
           </span>
-          <span className="text-sm text-slate-600">Made with ❤️ in Schwerin</span>
+          <span className="flex items-center gap-3 text-sm text-slate-600">
+            Made with ❤️ in Schwerin
+            <Link
+              href="/admin/preise"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:border-orange-200 hover:text-orange-600"
+            >
+              Admin Login
+            </Link>
+          </span>
         </div>
       </Container>
     </footer>

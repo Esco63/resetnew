@@ -12,7 +12,7 @@ export default function Hero() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <Section className="hero relative isolate overflow-hidden p-0">
+    <Section className="hero relative isolate overflow-hidden p-0 shadow-[0_24px_42px_-28px_rgba(15,23,42,0.65)]">
       {/* Hintergrundbild */}
       <div
         className="absolute inset-0 -z-10 bg-[url('/hero.png')] bg-cover bg-center"
@@ -22,18 +22,18 @@ export default function Hero() {
       <div className="absolute inset-0 -z-10 bg-black/60 md:bg-black/50" aria-hidden="true" />
 
       {/* Abstand unter fixed Header */}
-      <Container className="pt-[var(--header-h-mobile)] md:pt-[var(--header-h-desktop)] pb-16 md:pb-24 text-white">
+      <Container className="pt-[var(--header-h-mobile)] md:pt-[var(--header-h-desktop)] pb-16 md:pb-24 text-white overflow-hidden">
         <Heading
           level={1}
           className={[
             "max-w-4xl font-extrabold leading-tight",
-            "text-4xl sm:text-5xl md:text-6xl",
+            "text-[2rem] sm:text-5xl md:text-6xl",
             "text-shadow",
             mounted ? "motion-safe:animate-fade-in-up" : "opacity-0",
           ].join(" ")}
         >
           Auflösen. Entrümpeln. Neuanfangen.{" "}
-          <span className="text-orange-400">In Schwerin.</span>
+          <span className="block text-orange-400 sm:inline">In Schwerin.</span>
         </Heading>
 
         <p
@@ -51,23 +51,23 @@ export default function Hero() {
 
         <div
           className={[
-            "mt-8 flex flex-wrap items-center gap-4",
+            "mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4",
             mounted
               ? "motion-safe:animate-fade-in motion-safe:[animation-delay:220ms]"
               : "opacity-0",
           ].join(" ")}
         >
-          <Link variant="pill" href="#angebot" className="shadow-lg">
+          <Link variant="pill" href="#kontakt" className="w-full justify-center shadow-lg sm:w-auto">
             <Sparkles size={20} aria-hidden="true" /> Jetzt kostenloses Angebot
           </Link>
-          <Link variant="ghost" href="#leistungen">
+          <Link variant="ghost" href="#leistungen" className="w-full justify-center sm:w-auto">
             Mehr erfahren
           </Link>
         </div>
 
         <div
           className={[
-            "mt-8 flex flex-wrap items-center gap-6 text-sm text-white/85",
+            "mt-8 grid grid-cols-1 gap-3 text-sm text-white/85 sm:flex sm:flex-wrap sm:items-center sm:gap-6",
             "text-shadow-sm",
             mounted
               ? "motion-safe:animate-fade-in motion-safe:[animation-delay:300ms]"

@@ -443,7 +443,6 @@ function emailTemplate(opts: {
     facts = [],
     messageLabel,
     messageBody,
-    actions = [],
     legal = [],
     extraBox,
     signature = false,

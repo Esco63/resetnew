@@ -11,12 +11,12 @@ import {
   Hammer,
   Menu,
   X,
-  Phone,
-  Mail,
   MessageCircle,
 } from "lucide-react";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import StickyBar from "@/components/layout/StickyBar";
 
 export default function LeistungenPage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -146,7 +146,7 @@ export default function LeistungenPage() {
               Kontakt
             </Link>
             <Link
-              href="/#angebot"
+              href="/#kontakt"
               className="ml-1 inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700 transition"
             >
               Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
@@ -189,7 +189,7 @@ export default function LeistungenPage() {
                 Kontakt
               </Link>
               <Link
-                href="/#angebot"
+                href="/#kontakt"
                 onClick={() => setMobileNavOpen(false)}
                 className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700"
               >
@@ -202,13 +202,18 @@ export default function LeistungenPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative isolate overflow-hidden bg-gradient-to-b from-orange-50 to-white">
-          <div className="mx-auto max-w-7xl px-4 md:px-8 py-20 md:py-28 text-center">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight">
-              Unsere <span className="text-orange-600">Leistungen</span>
+        <section className="relative isolate overflow-hidden shadow-[0_24px_42px_-28px_rgba(15,23,42,0.65)]">
+          <div
+            className="absolute inset-0 -z-10 bg-[url('/hero.png')] bg-cover bg-center"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 -z-10 bg-black/55" aria-hidden="true" />
+          <div className="mx-auto max-w-7xl overflow-hidden px-4 md:px-8 py-20 md:py-28 text-center text-white">
+            <h1 className="text-[2rem] sm:text-4xl md:text-6xl font-black tracking-tight !text-white text-shadow">
+              Unsere <span className="text-orange-400">Leistungen</span>
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-600 leading-relaxed">
-              Alles aus einer Hand – zuverlässig, diskret und zu fairen
+            <p className="mt-4 max-w-2xl mx-auto text-base md:text-xl text-white leading-relaxed text-shadow-sm">
+              Alles aus einer Hand - zuverlässig, diskret und zu fairen
               Festpreisen.
             </p>
           </div>
@@ -224,12 +229,13 @@ export default function LeistungenPage() {
                   className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition"
                 >
                   {/* Bild */}
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Image
                       src={l.image}
                       alt={l.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
 
@@ -262,7 +268,7 @@ export default function LeistungenPage() {
                   {/* Fixierter CTA unten rechts */}
                   <div className="absolute bottom-0 right-0 p-4">
                     <Link
-                      href="/#angebot"
+                      href="/#kontakt"
                       className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
                     >
                       Angebot anfordern <ArrowRight size={18} />
@@ -322,7 +328,7 @@ export default function LeistungenPage() {
               einfach und kostenlos.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
-              <Link href="/#angebot" className="btn-primary">
+              <Link href="/#kontakt" className="btn-primary">
                 Angebot sichern <ArrowRight size={18} aria-hidden="true" />
               </Link>
               <a
@@ -338,58 +344,7 @@ export default function LeistungenPage() {
         </section>
       </main>
 
-      {/* Sticky CTA / Mobile Bottom Bar wie Landing */}
-      <div className="sticky bottom-0 z-50 bg-white/95 backdrop-blur shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.25)] ring-1 ring-slate-200/60">
-        <div className="mx-auto max-w-7xl px-4 md:px-8 py-2.5 flex items-center justify-between gap-3">
-          {/* Desktop Hinweis + Buttons */}
-          <div className="hidden md:flex items-center gap-2 text-sm text-slate-700">
-            <Sparkles size={16} aria-hidden="true" /> Unverbindlich & diskret
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <a
-              href={business.whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700 transition"
-            >
-              <MessageCircle size={18} aria-hidden="true" /> WhatsApp
-            </a>
-            <Link
-              href="/#angebot"
-              className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 transition"
-            >
-              Jetzt kostenlos anfragen <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
-
-          {/* Mobile: 3-Aktions-Leiste */}
-          <div className="md:hidden grid grid-cols-3 gap-2 w-full">
-            <a
-              href={`tel:${business.phoneLink}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl ring-1 ring-slate-300 bg-white px-2 py-2 text-sm font-medium shadow-sm hover:bg-slate-50"
-              aria-label="Anrufen"
-            >
-              <Phone size={18} aria-hidden="true" /> Anruf
-            </a>
-            <a
-              href={business.whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700"
-              aria-label="WhatsApp Chat starten"
-            >
-              <MessageCircle size={18} aria-hidden="true" /> WhatsApp
-            </a>
-            <Link
-              href="/#angebot"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700"
-              aria-label="Angebot anfordern"
-            >
-              <Sparkles size={18} aria-hidden="true" /> Angebot
-            </Link>
-          </div>
-        </div>
-      </div>
+      <StickyBar />
 
       {/* Footer */}
       <footer className="bg-gradient-to-b from-white to-slate-50 mt-16">
@@ -449,7 +404,15 @@ export default function LeistungenPage() {
             <span className="text-sm text-slate-600">
               © {new Date().getFullYear()} reset. Alle Rechte vorbehalten.
             </span>
-            <span className="text-sm text-slate-600">Made with ❤️ in Schwerin</span>
+            <span className="flex items-center gap-3 text-sm text-slate-600">
+              Made with ❤️ in Schwerin
+              <Link
+                href="/admin/preise"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:border-orange-200 hover:text-orange-600"
+              >
+                Admin Login
+              </Link>
+            </span>
           </div>
         </div>
       </footer>

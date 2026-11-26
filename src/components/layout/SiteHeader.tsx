@@ -20,10 +20,10 @@ import { business } from "@/lib/business";
 type NavItem = { label: string; href: string };
 const NAV: NavItem[] = [
   { label: "Leistungen", href: "/leistungen" },
-  { label: "Vorteile", href: "#vorteile" },
+  { label: "Vorteile", href: "/#vorteile" },
   { label: "Preise", href: "/preise" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Kontakt", href: "/#kontakt" },
 ];
 
 const MOBILE_HEADER_H = 64;
@@ -149,7 +149,7 @@ export default function SiteHeader() {
             </Link>
           ))}
           <Link
-            href="#angebot"
+            href="/#kontakt"
             className="ml-1 inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
           >
             Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
@@ -185,7 +185,7 @@ export default function SiteHeader() {
             asChild={false}
             className="w-full"
             onClick={() => {
-              window.location.hash = "angebot";
+              window.location.href = "/#kontakt";
               setOpen(false);
             }}
           >

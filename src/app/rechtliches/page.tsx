@@ -8,14 +8,13 @@ import {
   X,
   Phone,
   Mail,
-  MessageCircle,
   FileText,
   ShieldCheck,
   Scale,
   Calendar,
   MapPin,
-  Sparkles,
 } from "lucide-react";
+import StickyBar from "@/components/layout/StickyBar";
 
 export default function RechtlichesPage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -84,7 +83,7 @@ export default function RechtlichesPage() {
               Kontakt
             </Link>
             <Link
-              href="/#angebot"
+              href="/#kontakt"
               className="ml-1 inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700 transition"
             >
               Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
@@ -127,7 +126,7 @@ export default function RechtlichesPage() {
                 Rechtliches
               </Link>
               <Link
-                href="/#angebot"
+                href="/#kontakt"
                 onClick={() => setMobileNavOpen(false)}
                 className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700"
               >
@@ -140,7 +139,7 @@ export default function RechtlichesPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative isolate overflow-hidden bg-gradient-to-b from-orange-50 to-white">
+        <section className="relative isolate overflow-hidden bg-gradient-to-b from-orange-50 to-white shadow-[0_24px_42px_-28px_rgba(15,23,42,0.35)]">
           <div className="mx-auto max-w-7xl px-4 md:px-8 py-16 md:py-24">
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-center">
               Rechtliches
@@ -481,57 +480,7 @@ export default function RechtlichesPage() {
         </section>
       </main>
 
-      {/* Sticky CTA / Mobile Bottom Bar wie Landing */}
-      <div className="sticky bottom-0 z-50 bg-white/95 backdrop-blur shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.25)] ring-1 ring-slate-200/60">
-        <div className="mx-auto max-w-7xl px-4 md:px-8 py-2.5 flex items-center justify-between gap-3">
-          <div className="hidden md:flex items-center gap-2 text-sm text-slate-700">
-            <Sparkles size={16} aria-hidden="true" /> Unverbindlich & diskret
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <a
-              href={business.whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700 transition"
-            >
-              <MessageCircle size={18} aria-hidden="true" /> WhatsApp
-            </a>
-            <Link
-              href="/#angebot"
-              className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 transition"
-            >
-              Jetzt kostenlos anfragen <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
-
-          {/* Mobile: 3-Aktions-Leiste */}
-          <div className="md:hidden grid grid-cols-3 gap-2 w-full">
-            <a
-              href={`tel:${business.phoneLink}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl ring-1 ring-slate-300 bg-white px-2 py-2 text-sm font-medium shadow-sm hover:bg-slate-50"
-              aria-label="Anrufen"
-            >
-              <Phone size={18} aria-hidden="true" /> Anruf
-            </a>
-            <a
-              href={business.whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700"
-              aria-label="WhatsApp Chat starten"
-            >
-              <MessageCircle size={18} aria-hidden="true" /> WhatsApp
-            </a>
-            <Link
-              href="/#angebot"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700"
-              aria-label="Angebot anfordern"
-            >
-              Angebot
-            </Link>
-          </div>
-        </div>
-      </div>
+      <StickyBar />
 
       {/* Footer */}
       <footer className="bg-gradient-to-b from-white to-slate-50 mt-16">
@@ -591,7 +540,15 @@ export default function RechtlichesPage() {
             <span className="text-sm text-slate-600">
               © {new Date().getFullYear()} reset. Alle Rechte vorbehalten.
             </span>
-            <span className="text-sm text-slate-600">Made with ❤️ in Schwerin</span>
+            <span className="flex items-center gap-3 text-sm text-slate-600">
+              Made with ❤️ in Schwerin
+              <Link
+                href="/admin/preise"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:border-orange-200 hover:text-orange-600"
+              >
+                Admin Login
+              </Link>
+            </span>
           </div>
         </div>
       </footer>

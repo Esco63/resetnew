@@ -65,7 +65,7 @@ export default function Header() {
             </Link>
           ))}
           <Link
-            href="#angebot"
+            href="#kontakt"
             className="ml-1 inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white shadow hover:bg-orange-700 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
           >
             Angebot anfordern <ArrowRight size={18} aria-hidden="true" />
@@ -102,7 +102,7 @@ export default function Header() {
             asChild={false}
             className="w-full"
             onClick={() => {
-              window.location.hash = "angebot";
+              window.location.hash = "kontakt";
               setOpen(false);
             }}
           >

@@ -4,6 +4,7 @@ import Container from "@/components/ui/Container";
 import Heading from "@/components/ui/Heading";
 import Link from "@/components/ui/Link";
 import { CheckCircle } from "lucide-react";
+import Image from "next/image";
 
 const BENEFITS = [
   "Kostenloser Vor-Ort-Termin oder WhatsApp-Video",
@@ -26,14 +27,15 @@ export default function Benefits() {
               </li>
             ))}
           </ul>
-          <Link variant="pill" href="#angebot" className="mt-7 inline-flex w-full sm:w-auto justify-center">Angebot sichern</Link>
+          <Link variant="pill" href="#kontakt" className="mt-7 inline-flex w-full sm:w-auto justify-center">Angebot sichern</Link>
         </div>
         <div className="relative rounded-2xl overflow-hidden border border-slate-200/70 shadow-md">
-          <img
-            src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=2000&auto=format&fit=crop"
+          <Image
+            src="/super.png"
             alt=""
-            loading="lazy"
-            decoding="async"
+            width={1200}
+            height={800}
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="h-[280px] w-full object-cover object-center md:h-[360px]"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-black/5" />

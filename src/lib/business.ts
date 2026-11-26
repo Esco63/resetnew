@@ -1,6 +1,7 @@
-// lib/business.ts
 export const business = {
   name: "reset. Schwerin",
+  legalName: "reset. Schwerin",
+  siteUrl: "https://reset-service.de",
   phoneHuman: "0176 / 72190267",
   phoneLink: "+4917672190267",
   whatsappLink:
@@ -13,7 +14,11 @@ export const business = {
   },
   serviceArea: "Schwerin & Umgebung",
   openingHours: [
-    { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "07:00", closes: "20:00" },
+    {
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "07:00",
+      closes: "20:00",
+    },
     { days: ["Saturday"], opens: "09:00", closes: "15:00" },
   ],
 } as const;
@@ -22,7 +27,11 @@ export function buildLocalBusinessLd() {
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": `${business.siteUrl}/#localbusiness`,
     name: business.name,
+    legalName: business.legalName,
+    description:
+      "Haushaltsauflösung, Entrümpelung, Umzug, Fahrzeugvermietung, Gebäudereinigung und Hausmeisterservice in Schwerin und Umgebung.",
     address: {
       "@type": "PostalAddress",
       addressLocality: business.address.city,
@@ -31,7 +40,8 @@ export function buildLocalBusinessLd() {
       addressCountry: "DE",
     },
     telephone: business.phoneLink,
-    url: "https://reset-schwerin.example",
+    email: business.email,
+    url: business.siteUrl,
     sameAs: [business.whatsappLink],
     openingHours: ["Mo-Fr 07:00-20:00", "Sa 09:00-15:00"],
     openingHoursSpecification: business.openingHours.map((o) => ({

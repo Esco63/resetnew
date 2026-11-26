@@ -8,24 +8,23 @@ import {
   Mail,
   MessageCircle,
   Phone,
-  Settings,
   MapPin,
   Menu,
   X,
-  Shield,
-  Clock,
-  Truck,
 } from "lucide-react";
+import StickyBar from "@/components/layout/StickyBar";
+import { DEFAULT_PRICING_SETTINGS, type CalculatorPricingConfig } from "@/lib/pricing";
+import { usePricingSettings } from "@/lib/usePricingSettings";
 
 /**
- * Preise – reset. Schwerin
+ * Preise - reset. Schwerin
  * ----------------------------------------------
- * • Preise zentral oben in PRICING_CONFIG anpassbar
- * • Navbar/Topbar/Footer wie auf der UltraLanding-Seite
- * • 1. Transport-Stunde inklusive
- * • Admin-Panel zum Live-Feintuning
- * • Karten-spezifische Anfrage (Mail/WA) – nur die gewählte Leistung
- * • Transport: Schüttgut (Sand/Erde) → Plane Pflicht bei Anhänger
+ * - Preise zentral oben in PRICING_CONFIG anpassbar
+ * - Navbar/Topbar/Footer wie auf der UltraLanding-Seite
+ * - 1. Transport-Stunde inklusive
+ * - Admin-Panel zum Live-Feintuning
+ * - Karten-spezifische Anfrage (Mail/WA) - nur die gewählte Leistung
+ * - Transport: Schüttgut (Sand/Erde) -> Plane Pflicht bei Anhänger
  */
 
 // ===== 1) BUSINESS + PRICING =====
@@ -43,18 +42,6 @@ const BUSINESS = {
     city: "Schwerin",
   },
 } as const;
-
-type PricingConfig = {
-  haushalt: { basePerSqm: number; floorSurchargePctPerLevel: number; minPrice: number };
-  entrumpelung: { basePerSqm: number; floorSurchargePctPerLevel: number; minPrice: number };
-  transporte: { baseCityOnePickup: number; hourlyRate: number; kmRate: number; trailerExtra: number };
-};
-
-const PRICING_CONFIG: PricingConfig = {
-  haushalt: { basePerSqm: 18, floorSurchargePctPerLevel: 4, minPrice: 199 },
-  entrumpelung: { basePerSqm: 12, floorSurchargePctPerLevel: 3, minPrice: 149 },
-  transporte: { baseCityOnePickup: 79, hourlyRate: 30, kmRate: 1.2, trailerExtra: 20 },
-};
 
 // ===== 2) UI-Helper =====
 const A: React.FC<
@@ -155,7 +142,7 @@ function Header() {
           <Link href="/#vorteile" onClick={() => setMobileNavOpen(false)}>Vorteile</Link>
           <Link href="#preise" onClick={() => setMobileNavOpen(false)}>Preise</Link>
           <Link href="#faq" onClick={() => setMobileNavOpen(false)}>FAQ</Link>
-          <Link href="#angebot" onClick={() => setMobileNavOpen(false)}>Kontakt</Link>
+          <Link href="#angebot" onClick={() => setMobileNavOpen(false)}>Angebot</Link>
           <A
             href="#angebot"
             onClick={() => setMobileNavOpen(false)}
@@ -169,61 +156,6 @@ function Header() {
   );
 }
 
-function StickyBottomBar() {
-  return (
-    <div className="sticky bottom-0 z-50 bg-white/95 backdrop-blur shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.25)] ring-1 ring-slate-200/60">
-      <div className="mx-auto max-w-7xl px-4 md:px-8 py-2.5 flex items-center justify-between gap-3">
-        <div className="hidden md:flex items-center gap-2 text-sm text-slate-700">
-          <Shield size={16} aria-hidden /> Unverbindlich & diskret
-        </div>
-        <div className="hidden md:flex items-center gap-2">
-          <A
-            href={BUSINESS.whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600"
-          >
-            <MessageCircle size={18} aria-hidden /> WhatsApp
-          </A>
-          <A
-            href="#angebot"
-            className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 transition active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-600"
-          >
-            Jetzt kostenlos anfragen <ArrowRight size={18} aria-hidden />
-          </A>
-        </div>
-
-        {/* Mobile 3er-Bar */}
-        <div className="md:hidden grid grid-cols-3 gap-2 w-full">
-          <A
-            href={`tel:${BUSINESS.phoneLink}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl ring-1 ring-slate-300 bg-white px-2 py-2 text-sm font-medium shadow-sm hover:bg-slate-50"
-            aria-label="Anrufen"
-          >
-            <Phone size={18} aria-hidden /> Anruf
-          </A>
-          <A
-            href={BUSINESS.whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700"
-            aria-label="WhatsApp Chat starten"
-          >
-            <MessageCircle size={18} aria-hidden /> WhatsApp
-          </A>
-          <A
-            href="#angebot"
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-600 px-2 py-2 text-sm font-semibold text-white shadow hover:bg-orange-700"
-            aria-label="Angebot anfordern"
-          >
-            Angebot <ArrowRight size={16} aria-hidden />
-          </A>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function Footer() {
   return (
     <footer className="bg-gradient-to-b from-white to-slate-50 mt-16">
@@ -234,7 +166,7 @@ function Footer() {
             <span className="text-orange-600">set.</span>
           </div>
           <p className="mt-3 text-slate-600 leading-relaxed">
-            Auflösen · Entrümpeln · Neuanfangen – in Schwerin & Umgebung.
+            Auflösen · Entrümpeln · Neuanfangen - in Schwerin & Umgebung.
           </p>
         </div>
         <div>
@@ -269,7 +201,15 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-4 md:px-8 pb-10">
         <div className="rounded-2xl bg-white/70 ring-1 ring-slate-200/60 shadow-sm p-4 md:p-5 flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm text-slate-600">© {new Date().getFullYear()} reset. Alle Rechte vorbehalten.</span>
-          <span className="text-sm text-slate-600">Made with ❤️ in Schwerin</span>
+          <span className="flex items-center gap-3 text-sm text-slate-600">
+            Made with love in Schwerin
+            <Link
+              href="/admin/preise"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:border-orange-200 hover:text-orange-600"
+            >
+              Admin Login
+            </Link>
+          </span>
         </div>
       </div>
     </footer>
@@ -279,14 +219,11 @@ function Footer() {
 // ===== 4) PAGE =====
 export default function PreisePage() {
   const [mounted, setMounted] = useState(false);
+  const { settings } = usePricingSettings();
   useEffect(() => setMounted(true), []);
 
-  // Lokale State-Kopie
-  const [config, setConfig] = useState<PricingConfig>(() => ({
-    haushalt: { ...PRICING_CONFIG.haushalt },
-    entrumpelung: { ...PRICING_CONFIG.entrumpelung },
-    transporte: { ...PRICING_CONFIG.transporte },
-  }));
+  const config: CalculatorPricingConfig =
+    settings.calculator ?? DEFAULT_PRICING_SETTINGS.calculator;
 
   // === Haushaltsauflösung ===
   type HHInput = { sqm: number; floorsAboveEG: number; notes?: string };
@@ -330,7 +267,7 @@ export default function PreisePage() {
     notes: "",
   });
 
-  // Regel: Schüttgut + Anhänger → Plane Pflicht
+  // Regel: Schüttgut + Anhänger -> Plane Pflicht
   useEffect(() => {
     if (tr.withTrailer && tr.isBulkMaterial && !tr.trailerWithTarp) {
       setTR(v => ({ ...v, trailerWithTarp: true }));
@@ -349,7 +286,21 @@ export default function PreisePage() {
   }, [tr, config.transporte]);
 
   // ===== Zusammenfassung & Versand (pro Karte) =====
-  type QuoteKind = "hh" | "en" | "tr" | "all";
+  type QuoteKind = "hh" | "en" | "tr" | "hm" | "gr" | "all";
+  type QuoteStatus = "idle" | "loading" | "success" | "error";
+
+  const [quoteKind, setQuoteKind] = useState<QuoteKind | null>(null);
+  const [quoteStatus, setQuoteStatus] = useState<QuoteStatus>("idle");
+  const [quoteError, setQuoteError] = useState("");
+
+  const quoteSubjects: Record<QuoteKind, string> = {
+    all: "Anfrage - Preise & Angebot (reset Schwerin)",
+    hh: "Anfrage - Haushaltsauflösung (reset Schwerin)",
+    en: "Anfrage - Entrümpelung (reset Schwerin)",
+    tr: "Anfrage - Transport mit Fahrer (reset Schwerin)",
+    hm: "Anfrage - Hausmeisterservice (reset Schwerin)",
+    gr: "Anfrage - Gebäudereinigung (reset Schwerin)",
+  };
 
   function buildSummary(kind: QuoteKind = "all") {
     const blocks: string[] = [];
@@ -369,7 +320,7 @@ export default function PreisePage() {
     const trBlock = [
       `Transport: ${trResult.hours} Std (1. Std inkl., berechnet: ${trResult.billableHours})`,
       `${tr.kmOutsideCity} km außerhalb, Anhänger: ${tr.withTrailer ? (tr.trailerWithTarp ? "mit Plane" : "ohne Plane") : "nein"}`,
-      tr.isBulkMaterial ? "Hinweis: Schüttgut (Sand/Erde) – Plane vorgeschrieben, um Verlust/Verschmutzung zu vermeiden." : null,
+      tr.isBulkMaterial ? "Hinweis: Schüttgut (Sand/Erde) - Plane vorgeschrieben, um Verlust/Verschmutzung zu vermeiden." : null,
       tr.notes ? `Hinweise TR: ${tr.notes}` : null,
       `Summe: ${toMoney(trResult.total)}`,
     ].filter(Boolean).join("\n");
@@ -377,6 +328,8 @@ export default function PreisePage() {
     if (kind === "hh") blocks.push(hhBlock);
     else if (kind === "en") blocks.push(enBlock);
     else if (kind === "tr") blocks.push(trBlock);
+    else if (kind === "hm") blocks.push("Hausmeisterservice: Preis auf Anfrage - abhängig von Aufgaben, Turnus und Objektgröße.");
+    else if (kind === "gr") blocks.push("Gebäudereinigung: Preis auf Anfrage - Grund-/Unterhaltsreinigung, individuell kalkuliert.");
     else blocks.push(hhBlock, enBlock, trBlock);
 
     // Technische Konfig am Ende nur bei "all"
@@ -391,22 +344,61 @@ export default function PreisePage() {
     return blocks.filter(Boolean).join("\n\n");
   }
 
-  function mailtoQuote(kind: QuoteKind = "all") {
-    const subjects: Record<QuoteKind, string> = {
-      all: "Anfrage – Preise & Angebot (reset Schwerin)",
-      hh: "Anfrage – Haushaltsauflösung (reset Schwerin)",
-      en: "Anfrage – Entrümpelung (reset Schwerin)",
-      tr: "Anfrage – Transport mit Fahrer (reset Schwerin)",
-    };
-    const subject = encodeURIComponent(subjects[kind]);
-    const body = encodeURIComponent(buildSummary(kind));
-    window.location.href = `mailto:${BUSINESS.email}?subject=${subject}&body=${body}`;
+  function openQuoteModal(kind: QuoteKind = "all") {
+    setQuoteKind(kind);
+    setQuoteStatus("idle");
+    setQuoteError("");
   }
 
+  async function submitQuote(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!quoteKind) return;
+
+    const form = event.currentTarget;
+    const fd = new FormData(form);
+    const name = String(fd.get("name") || "").trim();
+    const email = String(fd.get("email") || "").trim();
+    const phone = String(fd.get("phone") || "").trim();
+    const customerMessage = String(fd.get("customerMessage") || "").trim();
+
+    const message = [
+      quoteSubjects[quoteKind],
+      "",
+      "Kalkulation:",
+      buildSummary(quoteKind),
+      customerMessage ? `\nNachricht des Kunden:\n${customerMessage}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    setQuoteStatus("loading");
+    setQuoteError("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, message, hp: "" }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error || "Anfrage konnte nicht gesendet werden.");
+      }
+
+      form.reset();
+      setQuoteStatus("success");
+    } catch (error) {
+      setQuoteStatus("error");
+      setQuoteError(error instanceof Error ? error.message : "Anfrage konnte nicht gesendet werden.");
+    }
+  }
+
+
   function whatsappQuote(kind: QuoteKind) {
-    const phone = BUSINESS.phoneLink.replace(/^\+/, ""); // +4917… → 4917…
+    const phone = BUSINESS.phoneLink.replace(/^\+/, ""); // +4917... -> 4917...
     const text = buildSummary(kind);
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    const url = `https://wa.me/${phone}€text=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
@@ -444,81 +436,16 @@ export default function PreisePage() {
       <Header />
 
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-gradient-to-b from-white to-slate-50">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-white to-slate-50 shadow-[0_24px_42px_-28px_rgba(15,23,42,0.65)]">
         <div className="absolute inset-0 -z-10 bg-[url('/hero.png')] bg-cover bg-center" aria-hidden />
         <div className="absolute inset-0 -z-10 bg-black/50" aria-hidden />
-        <div className="mx-auto max-w-7xl px-4 md:px-8 py-16 md:py-24 text-white">
-          <h1 className={`max-w-4xl text-4xl md:text-6xl font-black tracking-tight leading-tight ${mounted ? "motion-safe:animate-fade-in-up" : "opacity-0"}`}>
+        <div className="mx-auto max-w-7xl overflow-hidden px-4 md:px-8 py-16 md:py-24 text-white">
+          <h1 className={`max-w-4xl text-[2rem] sm:text-4xl md:text-6xl font-black tracking-tight leading-tight !text-white ${mounted ? "motion-safe:animate-fade-in-up" : "opacity-0"}`}>
             Transparente <span className="text-orange-400">Preise</span>
           </h1>
-          <p className={`mt-4 max-w-2xl text-white/90 ${mounted ? "motion-safe:animate-fade-in motion-safe:[animation-delay:100ms]" : "opacity-0"}`}>
+          <p className={`mt-4 max-w-2xl text-sm leading-relaxed text-white/90 sm:text-base ${mounted ? "motion-safe:animate-fade-in motion-safe:[animation-delay:100ms]" : "opacity-0"}`}>
             Beispielrechner für Haushaltsauflösung, Entrümpelung und Transporte mit Fahrer. Hausmeisterservice & Gebäudereinigung: Preis auf Anfrage.
           </p>
-        </div>
-      </section>
-
-      {/* ADMIN-KONFIG */}
-      <section className="bg-white py-12 md:py-20">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <details className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4 shadow-sm">
-            <summary className="flex items-center gap-2 cursor-pointer font-semibold">
-              <Settings size={18} /> Preis-Konfiguration (für Admin anpassbar)
-            </summary>
-            <div className="mt-4 grid md:grid-cols-3 gap-4 text-sm">
-              <div className="rounded-xl bg-white border p-4">
-                <h3 className="font-bold">Haushaltsauflösung</h3>
-                <label className="block mt-2">€ / m²
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.haushalt.basePerSqm}
-                    onChange={(e)=>setConfig(v=>({...v, haushalt:{...v.haushalt, basePerSqm: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">Zuschlag % / Etage
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.haushalt.floorSurchargePctPerLevel}
-                    onChange={(e)=>setConfig(v=>({...v, haushalt:{...v.haushalt, floorSurchargePctPerLevel: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">Mindestpreis
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.haushalt.minPrice}
-                    onChange={(e)=>setConfig(v=>({...v, haushalt:{...v.haushalt, minPrice: Number(e.target.value)}}))} />
-                </label>
-              </div>
-              <div className="rounded-xl bg-white border p-4">
-                <h3 className="font-bold">Entrümpelung</h3>
-                <label className="block mt-2">€ / m²
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.entrumpelung.basePerSqm}
-                    onChange={(e)=>setConfig(v=>({...v, entrumpelung:{...v.entrumpelung, basePerSqm: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">Zuschlag % / Etage
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.entrumpelung.floorSurchargePctPerLevel}
-                    onChange={(e)=>setConfig(v=>({...v, entrumpelung:{...v.entrumpelung, floorSurchargePctPerLevel: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">Mindestpreis
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.entrumpelung.minPrice}
-                    onChange={(e)=>setConfig(v=>({...v, entrumpelung:{...v.entrumpelung, minPrice: Number(e.target.value)}}))} />
-                </label>
-              </div>
-              <div className="rounded-xl bg-white border p-4">
-                <h3 className="font-bold">Transporte mit Fahrer</h3>
-                <label className="block mt-2">Pauschal (Stadt, 1 Abholung)
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.transporte.baseCityOnePickup}
-                    onChange={(e)=>setConfig(v=>({...v, transporte:{...v.transporte, baseCityOnePickup: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">€ / Stunde (ab 2. Std)
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.transporte.hourlyRate}
-                    onChange={(e)=>setConfig(v=>({...v, transporte:{...v.transporte, hourlyRate: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">€ / km außerhalb
-                  <input type="number" min={0} step={0.1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.transporte.kmRate}
-                    onChange={(e)=>setConfig(v=>({...v, transporte:{...v.transporte, kmRate: Number(e.target.value)}}))} />
-                </label>
-                <label className="block mt-2">Anhänger-Zuschlag
-                  <input type="number" min={0} step={1} className="mt-1 w-full rounded-lg border px-3 py-2" value={config.transporte.trailerExtra}
-                    onChange={(e)=>setConfig(v=>({...v, transporte:{...v.transporte, trailerExtra: Number(e.target.value)}}))} />
-                </label>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-slate-500">
-              Hinweis: Die Standardwerte kommen aus <code>PRICING_CONFIG</code> oben. Für dauerhafte Änderungen Werte dort anpassen.
-            </p>
-          </details>
         </div>
       </section>
 
@@ -550,11 +477,11 @@ export default function PreisePage() {
               <div className="flex justify-between border-t mt-2 pt-2 text-slate-900 text-base"><span className="font-bold">Voraussichtliche Summe</span><strong className="font-black text-orange-600">{toMoney(hhResult.total)}</strong></div>
               <p className="mt-2 text-xs text-slate-500">Unverbindliche Orientierung. Besichtigung (vor Ort oder per WhatsApp-Video) empfohlen.</p>
             </div>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => mailtoQuote("hh")} className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <button type="button" onClick={() => openQuoteModal("hh")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700 sm:w-auto">
                 Per Mail anfragen <ArrowRight size={16} />
               </button>
-              <button onClick={() => whatsappQuote("hh")} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700">
+              <button onClick={() => whatsappQuote("hh")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
                 <MessageCircle size={16}/> WhatsApp
               </button>
             </div>
@@ -585,11 +512,11 @@ export default function PreisePage() {
               <div className="flex justify-between border-t mt-2 pt-2 text-slate-900 text-base"><span className="font-bold">Voraussichtliche Summe</span><strong className="font-black text-orange-600">{toMoney(enResult.total)}</strong></div>
               <p className="mt-2 text-xs text-slate-500">Unverbindliche Orientierung. Je nach Umfang/Entsorgung variabel.</p>
             </div>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => mailtoQuote("en")} className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <button type="button" onClick={() => openQuoteModal("en")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700 sm:w-auto">
                 Per Mail anfragen <ArrowRight size={16} />
               </button>
-              <button onClick={() => whatsappQuote("en")} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700">
+              <button onClick={() => whatsappQuote("en")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
                 <MessageCircle size={16}/> WhatsApp
               </button>
             </div>
@@ -639,7 +566,7 @@ export default function PreisePage() {
                     onChange={(e)=>setTR(v=>({
                       ...v,
                       isBulkMaterial: e.target.checked,
-                      // Bei Schüttgut + Anhänger → Plane erzwungen
+                      // Bei Schüttgut + Anhänger -> Plane erzwungen
                       trailerWithTarp: e.target.checked && v.withTrailer ? true : v.trailerWithTarp
                     }))} />
                   Schüttgut (Sand/Erde)
@@ -669,16 +596,16 @@ export default function PreisePage() {
               </p>
               {tr.isBulkMaterial && (
                 <p className="mt-1 text-xs text-slate-500">
-                  Schüttgut (Sand/Erde): Bitte Ladepunkt möglichst nah am Ziel angeben.
+                  Schüttgut (Sand/Erde): Bitte Ladepunkt m²glichst nah am Ziel angeben.
                 </p>
               )}
             </div>
 
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => mailtoQuote("tr")} className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <button type="button" onClick={() => openQuoteModal("tr")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700 sm:w-auto">
                 Per Mail anfragen <ArrowRight size={16} />
               </button>
-              <button onClick={() => whatsappQuote("tr")} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700">
+              <button onClick={() => whatsappQuote("tr")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
                 <MessageCircle size={16}/> WhatsApp
               </button>
             </div>
@@ -692,24 +619,24 @@ export default function PreisePage() {
           <div className="grid md:grid-cols-2 gap-6 md:gap-10">
             <article className="rounded-2xl border border-slate-200/80 bg-slate-50 p-6 shadow-sm">
               <h2 className="text-xl md:text-2xl font-bold tracking-tight">Hausmeisterservice</h2>
-              <p className="mt-1 text-slate-600">Preis auf Anfrage – abhängig von Aufgaben, Turnus & Objektgröße.</p>
-              <div className="mt-4 flex gap-2">
-                <A href={`mailto:${BUSINESS.email}?subject=${encodeURIComponent("Anfrage Hausmeisterservice – reset Schwerin")}`} className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-white font-semibold shadow hover:bg-slate-800">
+              <p className="mt-1 text-slate-600">Preis auf Anfrage - abhängig von Aufgaben, Turnus & Objektgröße.</p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button type="button" onClick={() => openQuoteModal("hm")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-white font-semibold shadow hover:bg-slate-800 sm:w-auto">
                   <Mail size={16}/> Anfrage per Mail
-                </A>
-                <A href={BUSINESS.whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700">
+                </button>
+                <A href={BUSINESS.whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
                   <MessageCircle size={16}/> WhatsApp
                 </A>
               </div>
             </article>
             <article className="rounded-2xl border border-slate-200/80 bg-slate-50 p-6 shadow-sm">
               <h2 className="text-xl md:text-2xl font-bold tracking-tight">Gebäudereinigung</h2>
-              <p className="mt-1 text-slate-600">Preis auf Anfrage – Grund-/Unterhaltsreinigung, individuell kalkuliert.</p>
-              <div className="mt-4 flex gap-2">
-                <A href={`mailto:${BUSINESS.email}?subject=${encodeURIComponent("Anfrage Gebäudereinigung – reset Schwerin")}`} className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-white font-semibold shadow hover:bg-slate-800">
+              <p className="mt-1 text-slate-600">Preis auf Anfrage - Grund-/Unterhaltsreinigung, individuell kalkuliert.</p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button type="button" onClick={() => openQuoteModal("gr")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-white font-semibold shadow hover:bg-slate-800 sm:w-auto">
                   <Mail size={16}/> Anfrage per Mail
-                </A>
-                <A href={BUSINESS.whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700">
+                </button>
+                <A href={BUSINESS.whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
                   <MessageCircle size={16}/> WhatsApp
                 </A>
               </div>
@@ -723,13 +650,13 @@ export default function PreisePage() {
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-12 md:py-16 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-black tracking-tight">Angebot mit Ihren Angaben</h2>
-            <p className="mt-2 text-slate-600">Senden Sie uns die obigen Kalkulationen per Klick – wir melden uns.</p>
+            <p className="mt-2 text-slate-600">Senden Sie uns die obigen Kalkulationen per Klick - wir melden uns.</p>
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => mailtoQuote("all")} className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700">
+          <div className="flex w-full flex-col gap-2 md:w-auto sm:flex-row">
+            <button type="button" onClick={() => openQuoteModal("all")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-orange-700 sm:w-auto">
               Zusammenfassung per Mail <ArrowRight size={18}/>
             </button>
-            <button onClick={() => whatsappQuote("all")} className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700">
+            <button onClick={() => whatsappQuote("all")} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow hover:bg-emerald-700 sm:w-auto">
               <MessageCircle size={18}/> WhatsApp
             </button>
           </div>
@@ -745,23 +672,126 @@ export default function PreisePage() {
           </div>
           <div className="rounded-2xl border border-slate-200/80 p-6 shadow-sm">
             <h3 className="font-bold">Entsorgen Sie alles fachgerecht?</h3>
-            <p className="mt-2 text-slate-600">Ja, wir trennen sorgfältig und entsorgen nach gesetzlichen Vorgaben – inkl. Nachweis.</p>
+            <p className="mt-2 text-slate-600">Ja, wir trennen sorgfältig und entsorgen nach gesetzlichen Vorgaben - inkl. Nachweis.</p>
           </div>
         </div>
       </section>
 
-      <StickyBottomBar />
-      <Footer />
+      {quoteKind && (
+        <div
+          className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="quote-modal-title"
+        >
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl md:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="quote-modal-title" className="text-2xl font-black tracking-tight">
+                  Anfrage per Mail
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Die berechneten Daten sind bereits angehängt. Bitte Kontaktdaten ergänzen.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuoteKind(null)}
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+                aria-label="Modal schließen"
+              >
+                <X size={18} aria-hidden />
+              </button>
+            </div>
 
-      {/* Kleiner Runtime-Test */}
-      <Script id="preise-smoke" strategy="afterInteractive">
-        {`
-          try {
-            const html = document.documentElement.outerHTML;
-            console.log('[Preise] buttons:', /Per Mail anfragen/.test(html), /WhatsApp/.test(html));
-          } catch {}
-        `}
-      </Script>
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+              <div className="font-semibold text-slate-900">{quoteSubjects[quoteKind]}</div>
+              <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap font-sans text-xs leading-relaxed text-slate-600">
+                {buildSummary(quoteKind)}
+              </pre>
+            </div>
+
+            {quoteStatus === "success" ? (
+              <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
+                <p className="font-semibold">Danke, die Anfrage wurde gesendet.</p>
+                <p className="mt-1 text-sm">Wir melden uns umgehend zurück.</p>
+                <button
+                  type="button"
+                  onClick={() => setQuoteKind(null)}
+                  className="mt-4 rounded-full bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
+                >
+                  Schließen
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={submitQuote} className="mt-5 grid gap-4">
+                <label className="grid gap-1 text-sm font-medium text-slate-700">
+                  Name
+                  <input
+                    name="name"
+                    required
+                    minLength={2}
+                    autoComplete="name"
+                    className="rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                </label>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-1 text-sm font-medium text-slate-700">
+                    E-Mail
+                    <input
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      className="rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    />
+                  </label>
+                  <label className="grid gap-1 text-sm font-medium text-slate-700">
+                    Telefon
+                    <input
+                      name="phone"
+                      type="tel"
+                      autoComplete="tel"
+                      className="rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-slate-500">Bitte E-Mail oder Telefon angeben.</p>
+                <label className="grid gap-1 text-sm font-medium text-slate-700">
+                  Nachricht optional
+                  <textarea
+                    name="customerMessage"
+                    rows={4}
+                    className="rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    placeholder="Wunschtermin, Adresse, Etage, Besonderheiten..."
+                  />
+                </label>
+                {quoteStatus === "error" && (
+                  <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{quoteError}</p>
+                )}
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setQuoteKind(null)}
+                    className="rounded-full border border-slate-300 px-5 py-2.5 font-semibold hover:bg-slate-50"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={quoteStatus === "loading"}
+                    className="rounded-full bg-orange-600 px-5 py-2.5 font-semibold text-white shadow hover:bg-orange-700 disabled:opacity-60"
+                  >
+                    {quoteStatus === "loading" ? "Wird gesendet..." : "Anfrage senden"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      <StickyBar />
+      <Footer />
     </div>
   );
 }

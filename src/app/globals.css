@@ -215,12 +215,6 @@ main#main {
     padding-top: var(--header-h-desktop);
   }
 }
-@media (max-width: 768px) {
-  main#main {
-    padding-bottom: calc(var(--sticky-h) + env(safe-area-inset-bottom) + 16px);
-  }
-}
-
 /* Hero-Helper */
 .hero h1,
 .hero h2,
